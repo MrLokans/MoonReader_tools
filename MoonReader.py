@@ -2,6 +2,11 @@ import re
 import zlib
 
 
+class PDF_Note_Parser(object):
+    def __init__(self):
+        pass
+
+
 class MoonReaderNotes(object):
 
     def __init__(self):
