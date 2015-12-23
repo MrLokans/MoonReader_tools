@@ -1,4 +1,37 @@
 import re
+import zlib
+
+
+class MoonReaderNotes(object):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_file(file_path):
+        content = ""
+        with open(file_path, "wb") as f:
+            content = f.read()
+        if MoonReaderNotes._is_zipped(content):
+            return MoonReaderNotes._from_zipped_string(content)
+        else:
+            return MoonReaderNotes._from_string(content)
+
+    @staticmethod
+    def _from_zipped_string(str_content):
+        match = MoonReaderStatistics._compiled_regex.match(str_content)
+        if not match:
+            raise ValueError("Incorrect string")
+        items = match.groupdict()
+        return MoonReaderStatistics(**items)
+
+    @staticmethod
+    def _unpack_str(zipped_str):
+        return zlib.decompress(zipped_str)
+
+    @staticmethod
+    def _is_zipped(str_text):
+        return len(str) > 2 and str_text[0], str_text[1] == '78', '9c'
 
 
 class MoonReaderStatistics(object):
