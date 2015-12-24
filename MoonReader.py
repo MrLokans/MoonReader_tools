@@ -161,8 +161,8 @@ class MoonReaderStatistics(object):
 
     def __init__(self, uid, pages, percentage, **kwargs):
         self.uid = uid
-        self.pages = pages
-        self.percentage = percentage
+        self.pages = int(pages)
+        self.percentage = float(percentage)
 
     @staticmethod
     def from_file(file_path):
@@ -181,12 +181,7 @@ class MoonReaderStatistics(object):
 
 
 def main():
-    test_str = "1392540515970*15@0#6095:7.8%"
-    po = MoonReaderStatistics.from_string(test_str)
-
-    print po.percentage
-    print po.pages
-    print po.uid
+    pass
 
 if __name__ == '__main__':
     main()

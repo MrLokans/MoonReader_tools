@@ -1,7 +1,7 @@
 # coding: utf8
 import unittest
 
-from MoonReader import FB2_Note_Parser, AbstractNote, FB2_Note
+from MoonReader import FB2_Note_Parser, AbstractNote, FB2_Note, MoonReaderStatistics
 
 
 class TestNoteReader(unittest.TestCase):
@@ -120,6 +120,17 @@ class TestHelperMethods(unittest.TestCase):
         seq1 = ["0", "1", "0"]
         bin_val = FB2_Note.modifier_from_seq(seq1)
         self.assertEqual(bin_val, 0b010)
+
+
+class TestStatistics(unittest.TestCase):
+
+    def test_full_str_is_parsed_correctly(self):
+        test_str = "1392540515970*15@0#6095:7.8%"
+        po = MoonReaderStatistics.from_string(test_str)
+        self.assertEqual(po.percentage, 7.8)
+        self.assertEqual(po.pages, 15)
+        self.assertEqual(po.uid, "1392540515970")
+
 
 if __name__ == '__main__':
     unittest.main()
