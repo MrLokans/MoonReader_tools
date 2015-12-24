@@ -87,11 +87,11 @@ Some text 2
         note_1 = parser.notes[0]
 
         self.assertEqual(note_1.text, "Some text")
-        self.assertEqual(note_1.id, 2984)
+        self.assertEqual(note_1.id, '2984')
         self.assertEqual(note_1.modifier, AbstractNote.MARKER)
 
     def test_fb2_note_creation_from_str_list_works(self):
-        note = FB2_Note_Parser.from_str_list(self.sample_list)
+        note = FB2_Note.from_str_list(self.sample_list)
         self.assertEqual(note.text, "Some Text")
         self.assertEqual(note.id, '1')
         self.assertEqual(note.time, '14700000000')
@@ -100,9 +100,9 @@ Some text 2
         header = self.generate_note_header()
         note_text = self.generate_note_text()
         note_content = header + note_text
-        splitted_header, splitted_note_text = FB2_Note.split_note_text(note_content)
-        self.assertEqual(header, splitted_header)
-        self.assertEqual(note_text, splitted_note_text)
+        splitted_header, splitted_note_text = FB2_Note_Parser.split_note_text(note_content.splitlines())
+        self.assertEqual(header.splitlines(), splitted_header)
+        self.assertEqual(note_text.splitlines(), splitted_note_text)
 
     def test_fb2_note_from_list_has_correct_modifier(self):
         note = FB2_Note.from_str_list(self.sample_list)
