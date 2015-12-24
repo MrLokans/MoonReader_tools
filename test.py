@@ -6,6 +6,34 @@ from MoonReader import FB2_Note_Parser, AbstractNote, FB2_Note
 
 class TestNoteReader(unittest.TestCase):
 
+    def generate_note_text(self, id=1, text="test", title="test_title"):
+        return """\
+{id}
+{title}
+/test/test/test.pdf
+/test/test/test.pdf
+0
+0
+0
+0
+0
+0
+
+
+{text}
+0
+0
+0
+""".format(**locals())
+
+    def generate_file_content(self, id=1, notes_count=1):
+        header = """\
+{id}
+indent:false
+trim:false"""
+        notes = "\n".join(self.generate_note_text(i) for i in range(notes_count))
+        return header + notes
+
     def setUp(self):
         self.sample_note_text = """\
 343599
@@ -63,6 +91,10 @@ Some text 2
         self.assertEqual(note.text, "Some Text")
         self.assertEqual(note.id, '1')
         self.assertEqual(note.time, '14700000000')
+
+    def test_note_text_correctly_splitted_into_header_and_rest(self):
+        note_content = self.generate_file_content()
+        print note_content
 
     def test_fb2_note_from_list_has_correct_modifier(self):
         note = FB2_Note.from_str_list(self.sample_list)
