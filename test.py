@@ -48,9 +48,10 @@ Some text 2
 """
         self.sample_list = ['1', 'Title', 'test.pdf', 'test.pdf', '1', '1', '1', '1', '123123123', '14700000000', '', '', 'Some Text', '0', '0', '1']
 
-    @unittest.skip("temp")
     def test_reads_raw_text_correctly(self):
         parser = FB2_Note_Parser(self.sample_note_text)
+
+        self.assertEqual(len(parser.notes), 2)
         note_1 = parser.notes[0]
 
         self.assertEqual(note_1.text, "Some text")
