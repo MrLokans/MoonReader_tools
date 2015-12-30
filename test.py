@@ -1,7 +1,7 @@
 # coding: utf8
 import unittest
 
-from MoonReader import FB2_Note_Parser, AbstractNote, FB2_Note, MoonReaderStatistics
+from MoonReader import FB2_Note_Parser, AbstractNote, FB2_Note, MoonReaderStatistics, PDF_Note_Parser, PDF_Note, one_obj_or_list
 
 
 class TestNoteReader(unittest.TestCase):
@@ -109,6 +109,45 @@ Some text 2
         self.assertEqual(note.modifier, AbstractNote.WAVED)
 
 
+class TestPDFParserRoutines(unittest.TestCase):
+
+    def test_notes_are_correctly_parsed(self):
+        text = "245#A*#8#A1#1451496313379#A2#291#A3#301#A4#-256#A5#0#A6##A7# sample_text_1#A@##A*#9#A1#1451496349963#A2#4#A3#0#A4#-16711936#A5#0#A6##A7# sample_text_2#A@#"
+        note_object = PDF_Note_Parser.from_text(text)
+
+        self.assertEqual(len(note_object.notes), 2)
+        self.assertEqual(note_object.notes[0].text, " sample_text_1")
+        self.assertEqual(note_object.notes[1].text, " sample_text_2")
+
+    def test_note_texts_splitted_correctly(self):
+        pdf_text = "245#A*#<note_contents_1>#A@##A*#<note_contents_2>#A@#"
+        note_texts = PDF_Note_Parser._find_note_text_pieces(text=pdf_text)
+        self.assertEqual(len(note_texts), 2)
+        self.assertEqual(note_texts[0], "#A*#<note_contents_1>#A@#")
+        self.assertEqual(note_texts[1], "#A*#<note_contents_2>#A@#")
+
+    def test_single_note_parses_correctly(self):
+        note_text = "#A*#11#A1#1451497221825#A2#643#A3#646#A4#-11184811#A5#2#A6##A7#test_text#A@#"
+
+        d = PDF_Note._dict_from_text(note_text)
+
+        self.assertEqual(d.get("page", ""), "11")
+        self.assertEqual(d.get("timestamp", ""), "1451497221825")
+        self.assertEqual(d.get("color", ""), "-11184811")
+        self.assertEqual(d.get("style", ""), "2")
+        self.assertEqual(d.get("text", ""), "test_text")
+
+    def test_note_inited_from_text_correctly(self):
+        note_text = "#A*#11#A1#1451497221825#A2#643#A3#646#A4#-11184811#A5#2#A6##A7#test_text#A@#"
+
+        note = PDF_Note.from_text(note_text)
+
+        self.assertEqual(note.text, "test_text")
+        self.assertEqual(note._timestamp, "1451497221825")
+        self.assertEqual(note._color, "-11184811")
+        self.assertEqual(note.modifier, AbstractNote.CROSSED)
+
+
 class TestHelperMethods(unittest.TestCase):
 
     def test_binary_transform_int_list(self):
@@ -120,6 +159,14 @@ class TestHelperMethods(unittest.TestCase):
         seq1 = ["0", "1", "0"]
         bin_val = FB2_Note.modifier_from_seq(seq1)
         self.assertEqual(bin_val, 0b010)
+
+    def test_one_or_list_returns_list_for_list_of_many_objects(self):
+        l = [1, 2]
+        self.assertEqual(one_obj_or_list(l), [1, 2])
+
+    def test_one_or_list_returns_one_object_for_list_of_single_object(self):
+        l = [100]
+        self.assertEqual(one_obj_or_list(l), 100)
 
 
 class TestStatistics(unittest.TestCase):
