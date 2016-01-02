@@ -1,11 +1,16 @@
 import re
 import os
+import io
+import abc
 import zlib
 import struct
+import json
 import datetime
 
 NOTE_EXTENSION = ".an"
 STAT_EXTENSION = ".po"
+
+# TODO: handle *DELETED* end tag!
 
 
 def one_obj_or_list(seq):
@@ -96,12 +101,19 @@ class AbstractBookNotes(object):
         self.notes = notes
 
 
+class Abstract_Note_Parser(abc.ABCMeta):
+
+    @abc.abstractmethod
+    def from_text(txt):
+        pass
+
+
 class PDF_Note_Parser(object):
 
     NOTE_START = "#A*#"
     NOTE_END = "#A@#"
 
-    def __init__(self, id, notes):
+    def __init__(self, id=None, notes=()):
         self.id = id
         self.notes = notes
 
@@ -235,9 +247,25 @@ class FB2_Note(AbstractNote):
 class FB2_Note_Parser(object):
     NOTE_SPLITTER = '#'
 
-    def __init__(self, note_text):
-        self._note_text = note_text
-        self.parse_text()
+    def __init__(self, id, notes):
+        self.id = id
+        self.notes = notes
+        # self._note_text = note_text
+        # self.parse_text()
+
+    @staticmethod
+    def from_text(text):
+        lines = text.splitlines()
+        if len(lines) < 3:
+            # TODO: rethink!
+            return None
+        _header, _note_lines = FB2_Note_Parser.split_note_text(lines)
+        _id = int(_header[0])
+        # _indented = self._header[1]
+        # _trimmed = self._header[2]
+
+        notes = [FB2_Note.from_str_list(l) for l in FB2_Note_Parser._notes_from_lines(_note_lines)]
+        return FB2_Note_Parser(id=_id, notes=notes)
 
     def parse_text(self):
         lines = self._note_text.splitlines()
@@ -245,7 +273,7 @@ class FB2_Note_Parser(object):
         assert len(lines) > 3
 
         self._header, self._note_lines = FB2_Note_Parser.split_note_text(lines)
-        self.book_id = int(self._header[0])
+        self.id = int(self._header[0])
         self.indented = self._header[1]
         self.trimmed = self._header[2]
 
@@ -281,7 +309,7 @@ class MoonReaderNotes(object):
     PARSE_STATEGIES = {
         'pdf': PDF_Note_Parser,
         'epub': FB2_Note_Parser,
-        "fb2": FB2_Note_Parser,
+        'fb2': FB2_Note_Parser,
     }
 
     # def __init__(self, id=id, notes=notes):
@@ -291,18 +319,25 @@ class MoonReaderNotes(object):
     @staticmethod
     def from_file(file_path):
         content = ""
+        assert file_path.endswith(NOTE_EXTENSION)
         assert os.path.exists(file_path)
-        with open(file_path, "wb") as f:
+
+        book_extension = file_path.split(".")[-2]
+        if book_extension == "zip":
+            book_extension = file_path.split(".")[-3]
+        with open(file_path, 'rb') as f:
             content = f.read()
         if MoonReaderNotes._is_zipped(content):
-            return MoonReaderNotes._from_zipped_string(content)
+            return MoonReaderNotes._from_zipped_string(content, file_type=book_extension)
         else:
-            return MoonReaderNotes._from_string(content)
+            return MoonReaderNotes._from_string(content, file_type=book_extension)
 
     @staticmethod
-    def _from_zipped_string(str_content):
+    def _from_zipped_string(str_content, file_type="fb2"):
         if not MoonReaderNotes._is_zipped:
             raise ValueError("Given string is not zipped.")
+        unpacked_str = MoonReaderNotes._unpack_str(str_content)
+        return MoonReaderNotes._from_string(unpacked_str, file_type=file_type)
 
     @staticmethod
     def _unpack_str(zipped_str):
@@ -310,7 +345,13 @@ class MoonReaderNotes(object):
 
     @staticmethod
     def _is_zipped(str_text):
-        return len(str) > 2 and str_text[0], str_text[1] == '78', '9c'
+        if len(str_text) < 2:
+            return False
+        return str_text[0], str_text[1] == '78', '9c'
+
+    @staticmethod
+    def _from_string(s, file_type="fb2"):
+        return MoonReaderNotes.PARSE_STATEGIES.get(file_type).from_text(s.decode())
 
 
 class MoonReaderStatistics(object):
@@ -325,24 +366,49 @@ class MoonReaderStatistics(object):
 
     @staticmethod
     def from_file(file_path):
+        if not file_path:
+            return None
+        assert file_path.endswith(STAT_EXTENSION)
+
         content = ""
-        with open(file_path) as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
+        if len(content) == 0:
+            # return MoonReaderStatistics()
+            pass
         return MoonReaderStatistics.from_string(content)
 
     @staticmethod
     def from_string(str_content):
         match = MoonReaderStatistics._compiled_regex.match(str_content)
         if not match:
-            raise ValueError("Incorrect string")
+            # raise ValueError("Incorrect string")
+            return None
         items = match.groupdict()
         return MoonReaderStatistics(**items)
 
 
+class MoonReaderBookData(object):
+
+    def __init__(self, stats, notes):
+        self.stats = stats
+        self.notes = notes
+
+    def to_json(self):
+        return {}
+
+    @staticmethod
+    def _from_file_tuple(tpl):
+        stat_file, note_file = tpl
+        return MoonReaderBookData(MoonReaderStatistics.from_file(note_file),
+                                  MoonReaderNotes.from_file(stat_file))
+
+
 def main():
-    colors = [-6706569, 1795227647, -11184811]
-    for col in colors:
-        print(rgba_hex_from_int(col))
+    temp_dir = '/home/anders-lokans/Dropbox/Books/.Moon+/Cache'
+    files = get_moonreader_files(temp_dir)
+    tuples = get_same_book_files(files)
+    print([MoonReaderBookData._from_file_tuple(x) for x in tuples])
 
 if __name__ == '__main__':
     main()
