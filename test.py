@@ -1,7 +1,15 @@
 # coding: utf8
 import unittest
+from unittest.mock import patch
 
-from MoonReader import FB2_Note_Parser, AbstractNote, FB2_Note, MoonReaderStatistics, PDF_Note_Parser, PDF_Note, one_obj_or_list
+import os
+import datetime
+
+from MoonReader import *
+# FB2_Note_Parser, AbstractNote, FB2_Note, MoonReaderStatistics, PDF_Note_Parser, PDF_Note, one_obj_or_list
+
+SAMPLE_SHORT_TIMESTAMP = '1451686942'
+SAMPLE_DATE = SAMPLE_SHORT_TIMESTAMP + '123'  # 1st January 2016 22:22:22
 
 
 class TestNoteReader(unittest.TestCase):
@@ -70,15 +78,15 @@ Another book title
 222
 131
 -16711936
-1441449604670
+{date}
 
 
 Some text 2
 0
 1
 0
-"""
-        self.sample_list = ['1', 'Title', 'test.pdf', 'test.pdf', '1', '1', '1', '1', '123123123', '14700000000', '', '', 'Some Text', '0', '0', '1']
+""".format(date=SAMPLE_DATE)
+        self.sample_list = ['1', 'Title', 'test.pdf', 'test.pdf', '1', '1', '1', '1', '123123123', SAMPLE_DATE, '', '', 'Some Text', '0', '0', '1']
 
     def test_reads_raw_text_correctly(self):
         parser = FB2_Note_Parser(self.sample_note_text)
@@ -94,7 +102,7 @@ Some text 2
         note = FB2_Note.from_str_list(self.sample_list)
         self.assertEqual(note.text, "Some Text")
         self.assertEqual(note.id, '1')
-        self.assertEqual(note.time, '14700000000')
+        self.assertEqual(note.time, datetime.datetime.fromtimestamp(int(SAMPLE_SHORT_TIMESTAMP)))
 
     def test_note_text_correctly_splitted_into_header_and_rest(self):
         header = self.generate_note_header()
@@ -178,6 +186,48 @@ class TestStatistics(unittest.TestCase):
         self.assertEqual(po.pages, 15)
         self.assertEqual(po.uid, "1392540515970")
 
+
+class TestColorExtractingRoutines(unittest.TestCase):
+
+    def test_RGB_string_formed_correctly_from_RGBA_sequence(self):
+        seq = ['0xff', '0xbb', '0xcc', '0xfe']
+        s = rgb_string_from_hex(seq)
+        self.assertEqual(s, '#BBCCFE')
+
+    def test_RGB_string_formed_correctly_from_RGB_sequence(self):
+        seq = ['0xbb', '0xcc', '0xfe']
+        s = rgb_string_from_hex(seq)
+        self.assertEqual(s, '#BBCCFE')
+
+    def test_RGB_bytes_value_correctly_taken_from_positive_number(self):
+        blue_color = 255  # 00 00 00 FF
+        hexed = rgba_hex_from_int(blue_color)
+        self.assertEqual(hexed, ['0x0', '0x0', '0x0', '0xff'])
+
+
+class TestFileRoutines(unittest.TestCase):
+
+    @patch('MoonReader.os.listdir')
+    def test_correct_files_taken(self, patched_listdir):
+        dir_name = "test"
+        patched_listdir.return_value = ["test.an", "test.po", "..", ".", "unused_file.file", "no_ext_file"]
+        files = get_moonreader_files(dir_name)
+        self.assertEqual(list(sorted(files)), [os.path.join(dir_name, "test.an"), os.path.join(dir_name, "test.po")])
+
+    def test_full_pairs_taken_correctly(self):
+        files = ["test_book_1.po", "test_book_2.an", "test_book_2.po", "test_book_1.an"]
+        pairs = get_same_book_files(files)
+        self.assertEqual(pairs, [("test_book_1.an", "test_book_1.po"), ("test_book_2.an", "test_book_2.po")])
+
+    def test_pairs_are_correctly_made_with_only_stat_file(self):
+        files = ["test_book_1.po", "test_book_2.po"]
+        pairs = get_same_book_files(files)
+        self.assertEqual(pairs, [("", "test_book_1.po"), ("", "test_book_2.po")])
+
+    def test_pairs_are_correctly_made_with_only_notes_file(self):
+        files = ["test_book_1.an", "test_book_2.an"]
+        pairs = get_same_book_files(files)
+        self.assertEqual(pairs, [("test_book_1.an", ""), ("test_book_2.an", "")])
 
 if __name__ == '__main__':
     unittest.main()
