@@ -1,8 +1,9 @@
+import zlib
 import unittest
-from moonreader_tools.parsers import PDF_Note_Parser, FB2_Note_Parser
+from moonreader_tools.parsers import PDF_Note_Parser, FB2_Note_Parser, MoonReaderNotes
 from moonreader_tools.stat import MoonReaderStatistics
 
-from moonreader_tools.notes import AbstractNote
+from moonreader_tools.notes import AbstractNote, EmptyNote
 
 from .base import BaseTest
 
@@ -54,3 +55,29 @@ class TestStatistics(unittest.TestCase):
         self.assertEqual(po.percentage, 7.8)
         self.assertEqual(po.pages, 15)
         self.assertEqual(po.uid, "1392540515970")
+
+
+class TestMoonReaderNotes(unittest.TestCase):
+
+    def test_correctly_unpacks_zipped_str(self):
+        sample_s = b"12312412412adf2qe12d-ascacafq5"
+        zipped = zlib.compress(sample_s)
+        self.assertEqual(MoonReaderNotes._unpack_str(zipped), sample_s)
+
+    def test_correctly_determines_zipped_str(self):
+        zipped = ['78', '9c', 'aa', 'ff']
+        self.assertTrue(MoonReaderNotes._is_zipped(zipped))
+
+    def test_correctly_determines_not_zipped(self):
+        sample_s = "12312412412adf2qe12d-ascacafq5"
+        self.assertFalse(MoonReaderNotes._is_zipped(sample_s))
+
+    def test_correctly_determines_short_str(self):
+        sample_s = "78".encode('utf-8')
+        self.assertFalse(MoonReaderNotes._is_zipped(sample_s))
+
+    @unittest.mock.patch('os.path.exists')
+    def test_returns_empty_note_for_non_existent_path(self, mocked_exists):
+        mocked_exists.return_value = False
+        notes = MoonReaderNotes.from_file("a")
+        self.assertIsInstance(notes, EmptyNote)
