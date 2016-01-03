@@ -78,4 +78,6 @@ Some text 2
 1
 0
 """.format(date=SAMPLE_DATE)
+
         self.sample_list = ['1', 'Title', 'test.pdf', 'test.pdf', '1', '1', '1', '1', '123123123', SAMPLE_DATE, '', '', 'Some Text', '0', '0', '1']
+        self.deleted_note_list = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '1436185081862', '', '0', '0', '0', '0', '*DELETED*']

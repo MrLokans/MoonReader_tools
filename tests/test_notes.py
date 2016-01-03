@@ -47,6 +47,10 @@ class TestFB2Notes(BaseTest):
         self.assertEqual(note.id, '1')
         self.assertEqual(note.time, datetime.datetime.fromtimestamp(int(SAMPLE_SHORT_TIMESTAMP)))
 
+    def test_fb2note_correctly_handles_DELETED_attr(self):
+        note = FB2_Note.from_str_list(self.deleted_note_list)
+        self.assertEqual(note.is_deleted, True)
+
     def test_fb2_note_from_list_has_correct_modifier(self):
         note = FB2_Note.from_str_list(self.sample_list)
         self.assertEqual(note.modifier, AbstractNote.WAVED)
