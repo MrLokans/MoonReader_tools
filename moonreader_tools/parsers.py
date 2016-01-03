@@ -136,7 +136,7 @@ class MoonReaderNotes(object):
     def _is_zipped(str_text):
         if len(str_text) < 2:
             return False
-        return str_text[0], str_text[1] == '78', '9c'
+        return str_text[0] == '78' and str_text[1] == '9c'
 
     @classmethod
     def _from_string(cls, s, file_type="fb2"):
