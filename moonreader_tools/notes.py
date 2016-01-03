@@ -1,5 +1,6 @@
 import re
 
+from .conf import NOTE_DELETED
 from .utils import date_from_long_timestamp, one_obj_or_list
 
 
@@ -23,6 +24,19 @@ class AbstractNote(object):
 
     def _color_from_number(self):
         return self._color
+
+    def __str__(self):
+        return self.text
+
+
+class EmptyNote(object):
+
+    def __init__(self, *args, **kwargs):
+        self.id = 0
+        self.text = ""
+        self.time = None
+        self.modifier = 0b0
+        self.notes = []
 
 
 class PDF_Note(AbstractNote):
@@ -55,33 +69,33 @@ class PDF_Note(AbstractNote):
                                        note_modifier=style,
                                        note_color=color)
 
-    @staticmethod
-    def from_text(text):
-        token_dict = PDF_Note._dict_from_text(text)
+    @classmethod
+    def from_text(cls, text):
+        token_dict = cls._dict_from_text(text)
 
-        style = PDF_Note._style_from_num_str(token_dict["style"])
+        style = cls._style_from_num_str(token_dict["style"])
 
-        return PDF_Note(text=token_dict.get("text", ""),
-                        timestamp=token_dict.get("timestamp", ""),
-                        style=style,
-                        color=token_dict.get("color", ""))
+        return cls(text=token_dict.get("text", ""),
+                   timestamp=token_dict.get("timestamp", ""),
+                   style=style,
+                   color=token_dict.get("color", ""))
 
-    @staticmethod
-    def _dict_from_text(text):
+    @classmethod
+    def _dict_from_text(cls, text):
         """Split note's text according to regex, and return fields"""
 
-        note_tokens = re.split(PDF_Note.SPLITTER_PATTERN, text)
+        note_tokens = re.split(cls.SPLITTER_PATTERN, text)
         assert len(note_tokens) > 8
         d = {}
-        for item in PDF_Note.CORRESP_TABLE:
+        for item in cls.CORRESP_TABLE:
             if not item[1]:
                 continue
             d[item[1]] = note_tokens[item[0]]
         return d
 
-    @staticmethod
-    def _style_from_num_str(num_str):
-        return PDF_Note.STYLE_CORRESP[num_str]
+    @classmethod
+    def _style_from_num_str(cls, num_str):
+        return cls.STYLE_CORRESP[num_str]
 
 
 class FB2_Note(AbstractNote):
@@ -100,26 +114,33 @@ class FB2_Note(AbstractNote):
         (9, 1, "timestamp"),
         (10, 2, "separator_space"),
         (12, 1, 'text'),
-        (13, 3, 'modifier_bits')
+        (13, 3, 'modifier_bits'),
     ]
 
-    def __init__(self, note_id, note_text, note_timestamp, note_color, note_modifier):
+    def __init__(self, note_id, note_text, note_timestamp, note_color, note_modifier, is_deleted=False):
         super(FB2_Note, self).__init__(note_id, note_text,
                                        note_timestamp, note_color, note_modifier)
+        self.is_deleted = is_deleted
 
-    @staticmethod
-    def from_str_list(str_list):
+    @classmethod
+    def from_str_list(cls, str_list):
         d = {}
-        for item in FB2_Note.NOTE_SCHEME:
+        is_deleted = False
+        for item in cls.NOTE_SCHEME:
+            if str_list[-1] == NOTE_DELETED:
+                is_deleted = True
             d[item[2]] = str_list[item[0]:item[0]+item[1]]
-        return FB2_Note(note_id=one_obj_or_list(d["id"]),
-                        note_text=one_obj_or_list(d["text"]),
-                        note_timestamp=one_obj_or_list(d["timestamp"]),
-                        note_color=one_obj_or_list(d["color"]),
-                        note_modifier=FB2_Note.modifier_from_seq(d["modifier_bits"])
-                        )
+        return cls(note_id=one_obj_or_list(d["id"]),
+                   note_text=one_obj_or_list(d["text"]),
+                   note_timestamp=one_obj_or_list(d["timestamp"]),
+                   note_color=one_obj_or_list(d["color"]),
+                   note_modifier=cls.modifier_from_seq(d["modifier_bits"]),
+                   is_deleted=is_deleted
+                   )
 
     @staticmethod
     def modifier_from_seq(seq):
         """Transform a sequence of zeros and ones into binary number"""
+        if seq[-1] == NOTE_DELETED:
+            seq[-1] = 0
         return int("".join(map(str, seq)), base=2)

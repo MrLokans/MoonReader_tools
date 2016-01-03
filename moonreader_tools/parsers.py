@@ -2,7 +2,7 @@ import os
 import zlib
 
 from .conf import NOTE_EXTENSION
-from .notes import PDF_Note, FB2_Note
+from .notes import PDF_Note, FB2_Note, EmptyNote
 
 
 class PDF_Note_Parser(object):
@@ -14,11 +14,11 @@ class PDF_Note_Parser(object):
         self.id = id
         self.notes = notes
 
-    @staticmethod
-    def from_text(text):
-        note_texts = PDF_Note_Parser._find_note_text_pieces(text)
-        notes = PDF_Note_Parser._notes_from_note_texts(note_texts)
-        return PDF_Note_Parser(id=None, notes=notes)
+    @classmethod
+    def from_text(cls, text):
+        note_texts = cls._find_note_text_pieces(text)
+        notes = cls._notes_from_note_texts(note_texts)
+        return cls(id=None, notes=notes)
 
     @staticmethod
     def _find_note_text_pieces(text):
@@ -50,31 +50,19 @@ class FB2_Note_Parser(object):
         # self._note_text = note_text
         # self.parse_text()
 
-    @staticmethod
-    def from_text(text):
+    @classmethod
+    def from_text(cls, text):
         lines = text.splitlines()
         if len(lines) < 3:
             # TODO: rethink!
             return None
-        _header, _note_lines = FB2_Note_Parser.split_note_text(lines)
-        _id = int(_header[0])
+        _header, _note_lines = cls.split_note_text(lines)
+        _id = 0 if _header[0] == '#' else int(_header[0])
         # _indented = self._header[1]
         # _trimmed = self._header[2]
 
-        notes = [FB2_Note.from_str_list(l) for l in FB2_Note_Parser._notes_from_lines(_note_lines)]
-        return FB2_Note_Parser(id=_id, notes=notes)
-
-    def parse_text(self):
-        lines = self._note_text.splitlines()
-        # for every note list there is always a header of 4 lines
-        assert len(lines) > 3
-
-        self._header, self._note_lines = FB2_Note_Parser.split_note_text(lines)
-        self.id = int(self._header[0])
-        self.indented = self._header[1]
-        self.trimmed = self._header[2]
-
-        self.notes = [FB2_Note.from_str_list(l) for l in FB2_Note_Parser._notes_from_lines(self._note_lines)]
+        notes = [FB2_Note.from_str_list(l) for l in cls._notes_from_lines(_note_lines)]
+        return cls(id=_id, notes=notes)
 
     @staticmethod
     def split_note_text(note_lines):
@@ -113,28 +101,32 @@ class MoonReaderNotes(object):
     #     self.id = id
     #     self.notes = notes
 
-    @staticmethod
-    def from_file(file_path):
+    @classmethod
+    def from_file(cls, file_path):
         content = ""
-        assert file_path.endswith(NOTE_EXTENSION)
+        print(file_path)
+        if not os.path.exists(file_path):
+            return EmptyNote()
         assert os.path.exists(file_path)
+        assert file_path.endswith(NOTE_EXTENSION)
 
         book_extension = file_path.split(".")[-2]
         if book_extension == "zip":
             book_extension = file_path.split(".")[-3]
         with open(file_path, 'rb') as f:
             content = f.read()
-        if MoonReaderNotes._is_zipped(content):
-            return MoonReaderNotes._from_zipped_string(content, file_type=book_extension)
+        print(file_path)
+        if cls._is_zipped(content):
+            return cls._from_zipped_string(content, file_type=book_extension)
         else:
-            return MoonReaderNotes._from_string(content, file_type=book_extension)
+            return cls._from_string(content, file_type=book_extension)
 
-    @staticmethod
-    def _from_zipped_string(str_content, file_type="fb2"):
-        if not MoonReaderNotes._is_zipped:
+    @classmethod
+    def _from_zipped_string(cls, str_content, file_type="fb2"):
+        if not cls._is_zipped:
             raise ValueError("Given string is not zipped.")
-        unpacked_str = MoonReaderNotes._unpack_str(str_content)
-        return MoonReaderNotes._from_string(unpacked_str, file_type=file_type)
+        unpacked_str = cls._unpack_str(str_content)
+        return cls._from_string(unpacked_str, file_type=file_type)
 
     @staticmethod
     def _unpack_str(zipped_str):
@@ -146,6 +138,6 @@ class MoonReaderNotes(object):
             return False
         return str_text[0], str_text[1] == '78', '9c'
 
-    @staticmethod
-    def _from_string(s, file_type="fb2"):
-        return MoonReaderNotes.PARSE_STATEGIES.get(file_type).from_text(s.decode())
+    @classmethod
+    def _from_string(cls, s, file_type="fb2"):
+        return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())
