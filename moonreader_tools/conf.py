@@ -1,0 +1,2 @@
+NOTE_EXTENSION = ".an"
+STAT_EXTENSION = ".po"
