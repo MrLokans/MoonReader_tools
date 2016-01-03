@@ -1,6 +1,10 @@
 import re
+import os
+import zlib
 
+from .conf import NOTE_EXTENSION
 from .utils import date_from_long_timestamp, one_obj_or_list
+from .parsers import PDF_Note_Parser, FB2_Note_Parser
 
 
 class AbstractNote(object):
@@ -123,3 +127,53 @@ class FB2_Note(AbstractNote):
     def modifier_from_seq(seq):
         """Transform a sequence of zeros and ones into binary number"""
         return int("".join(map(str, seq)), base=2)
+
+
+class MoonReaderNotes(object):
+
+    PARSE_STATEGIES = {
+        'pdf': PDF_Note_Parser,
+        'epub': FB2_Note_Parser,
+        'fb2': FB2_Note_Parser,
+    }
+
+    # def __init__(self, id=id, notes=notes):
+    #     self.id = id
+    #     self.notes = notes
+
+    @staticmethod
+    def from_file(file_path):
+        content = ""
+        assert file_path.endswith(NOTE_EXTENSION)
+        assert os.path.exists(file_path)
+
+        book_extension = file_path.split(".")[-2]
+        if book_extension == "zip":
+            book_extension = file_path.split(".")[-3]
+        with open(file_path, 'rb') as f:
+            content = f.read()
+        if MoonReaderNotes._is_zipped(content):
+            return MoonReaderNotes._from_zipped_string(content, file_type=book_extension)
+        else:
+            return MoonReaderNotes._from_string(content, file_type=book_extension)
+
+    @staticmethod
+    def _from_zipped_string(str_content, file_type="fb2"):
+        if not MoonReaderNotes._is_zipped:
+            raise ValueError("Given string is not zipped.")
+        unpacked_str = MoonReaderNotes._unpack_str(str_content)
+        return MoonReaderNotes._from_string(unpacked_str, file_type=file_type)
+
+    @staticmethod
+    def _unpack_str(zipped_str):
+        return zlib.decompress(zipped_str)
+
+    @staticmethod
+    def _is_zipped(str_text):
+        if len(str_text) < 2:
+            return False
+        return str_text[0], str_text[1] == '78', '9c'
+
+    @staticmethod
+    def _from_string(s, file_type="fb2"):
+        return MoonReaderNotes.PARSE_STATEGIES.get(file_type).from_text(s.decode())
