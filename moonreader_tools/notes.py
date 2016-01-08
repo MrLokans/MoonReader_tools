@@ -1,4 +1,5 @@
 import re
+import json
 
 from .conf import NOTE_DELETED
 from .utils import date_from_long_timestamp, one_obj_or_list
@@ -21,6 +22,16 @@ class AbstractNote(object):
     @property
     def time(self):
         return date_from_long_timestamp(self._timestamp)
+
+    def to_dict(self):
+        return {
+            'text': self.text,
+            'date': str(date_from_long_timestamp(self._timestamp))
+        }
+
+    def to_json(self):
+        # print(self.to_dict())
+        return json.dumps(self.to_dict(), ensure_ascii=False)
 
     def _color_from_number(self):
         return self._color

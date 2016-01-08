@@ -104,7 +104,6 @@ class MoonReaderNotes(object):
     @classmethod
     def from_file(cls, file_path):
         content = ""
-        print(file_path)
         if not os.path.exists(file_path):
             return EmptyNote()
         assert os.path.exists(file_path)
@@ -115,7 +114,6 @@ class MoonReaderNotes(object):
             book_extension = file_path.split(".")[-3]
         with open(file_path, 'rb') as f:
             content = f.read()
-        print(file_path)
         if cls._is_zipped(content):
             return cls._from_zipped_string(content, file_type=book_extension)
         else:
@@ -136,8 +134,10 @@ class MoonReaderNotes(object):
     def _is_zipped(str_text):
         if len(str_text) < 2:
             return False
-        return str_text[0] == '78' and str_text[1] == '9c'
+        return (str_text[0], str_text[1]) == (int('78', base=16), int('9c', base=16))
+        # return str_text[0] == '78' and str_text[1] == '9c'
 
     @classmethod
     def _from_string(cls, s, file_type="fb2"):
+        # return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())
         return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())

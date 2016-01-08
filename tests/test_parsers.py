@@ -65,7 +65,7 @@ class TestMoonReaderNotes(unittest.TestCase):
         self.assertEqual(MoonReaderNotes._unpack_str(zipped), sample_s)
 
     def test_correctly_determines_zipped_str(self):
-        zipped = ['78', '9c', 'aa', 'ff']
+        zipped = [int('78', base=16), int('9c', base=16), int('aa', base=16), int('ff', base=16)]
         self.assertTrue(MoonReaderNotes._is_zipped(zipped))
 
     def test_correctly_determines_not_zipped(self):
