@@ -15,7 +15,11 @@ def one_obj_or_list(seq):
 
 def get_moonreader_files(path):
     files = map(lambda x: os.path.join(path, x), os.listdir(path))
-    return filter(lambda x: x.endswith((NOTE_EXTENSION, STAT_EXTENSION)), files)
+    return get_moonreader_files_from_filelist(files)
+
+
+def get_moonreader_files_from_filelist(file_list):
+    return filter(lambda x: x.endswith((NOTE_EXTENSION, STAT_EXTENSION)), file_list)
 
 
 def date_from_long_timestamp(str_timestamp):

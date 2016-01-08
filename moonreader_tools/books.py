@@ -24,14 +24,19 @@ class MoonReaderBookData(object):
         # print(self.to_dict())
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
-    @staticmethod
-    def _from_file_tuple(tpl):
+    @classmethod
+    def _from_file_tuple(cls, tpl):
         stat_file, note_file = tpl
         fname = stat_file if stat_file else note_file
         title = MoonReaderBookData._title_from_fname(fname)
         return MoonReaderBookData(title,
                                   MoonReaderStatistics.from_file(note_file),
                                   MoonReaderNotes.from_file(stat_file).notes)
+
+    @classmethod
+    def _from_fobj_dict(cls, dct):
+        fname = dct["stat_file"] if dct["stat_file"] else dct["note_file"]
+
 
     @classmethod
     def _title_from_fname(cls, fname):
