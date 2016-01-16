@@ -30,7 +30,6 @@ class AbstractNote(object):
         }
 
     def to_json(self):
-        # print(self.to_dict())
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
     def _color_from_number(self):

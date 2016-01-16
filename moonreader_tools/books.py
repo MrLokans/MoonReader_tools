@@ -13,15 +13,15 @@ class MoonReaderBookData(object):
         self.notes = notes
 
     def to_dict(self):
-        return {
-            'title': self.title,
+        d = {
+           'title': self.title,
             'pages': self.stats.pages,
             'percentage': self.stats.percentage,
             'notes': [note.to_dict() for note in self.notes]
         }
+        return d
 
     def to_json(self):
-        # print(self.to_dict())
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
     @classmethod
@@ -35,8 +35,14 @@ class MoonReaderBookData(object):
 
     @classmethod
     def _from_fobj_dict(cls, dct):
-        fname = dct["stat_file"] if dct["stat_file"] else dct["note_file"]
-
+        fname = dct["stat_file"][0] if dct["stat_file"] else dct["note_file"][0]
+        book_ext = fname.split('.')[-2]
+        if book_ext == "zip":
+            book_ext = fname.split('.')[-3]
+        book_title = cls._title_from_fname(fname)
+        return MoonReaderBookData(book_title,
+                                  MoonReaderStatistics.from_file_obj(dct["stat_file"][1]),
+                                  MoonReaderNotes.from_file_obj(dct["note_file"][1], book_ext).notes)
 
     @classmethod
     def _title_from_fname(cls, fname):
@@ -49,7 +55,6 @@ class MoonReaderBookData(object):
             fname = fname[:-4]
         if fname.endswith(".epub"):
             fname = fname[:-5]
-        print(fname)
         return fname
 
     def __str__(self):

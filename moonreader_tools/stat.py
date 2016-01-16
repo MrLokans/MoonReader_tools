@@ -2,6 +2,14 @@ import re
 from .conf import STAT_EXTENSION
 
 
+class EmptyMoonReaderStatistics(object):
+
+    def __init__(self):
+        self.uid = 0
+        self.pages = 0
+        self.percentage = 0
+
+
 class MoonReaderStatistics(object):
 
     _statistics_regex = r"(^(?P<uid>[\d]+))(\*(?P<pages>[\d]+))(\@(?P<no1>[\d]+))?(#(?P<no2>[\d]+))?(:(?P<percentage>[\d.]+))%"
@@ -12,25 +20,29 @@ class MoonReaderStatistics(object):
         self.pages = int(pages)
         self.percentage = float(percentage)
 
-    @staticmethod
-    def from_file(file_path):
+    @classmethod
+    def from_file(cls, file_path):
         if not file_path:
             return None
         assert file_path.endswith(STAT_EXTENSION)
 
-        content = ""
         with open(file_path, encoding="utf-8") as f:
-            content = f.read()
+            return cls.from_file_obj(f)
+
+    @classmethod
+    def from_file_obj(cls, flike_obj, ext=".po"):
+        content = flike_obj.read()
+        if isinstance(content, type(b'bytes')):
+            content = content.decode('utf-8')
         if len(content) == 0:
-            # return MoonReaderStatistics()
-            pass
+            print("Statistics is empty.")
+            return EmptyMoonReaderStatistics()
         return MoonReaderStatistics.from_string(content)
 
-    @staticmethod
-    def from_string(str_content):
+    @classmethod
+    def from_string(cls, str_content):
         match = MoonReaderStatistics._compiled_regex.match(str_content)
         if not match:
-            # raise ValueError("Incorrect string")
-            return None
+            return EmptyMoonReaderStatistics()
         items = match.groupdict()
         return MoonReaderStatistics(**items)

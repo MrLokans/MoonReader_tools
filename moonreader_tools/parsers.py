@@ -5,6 +5,13 @@ from .conf import NOTE_EXTENSION
 from .notes import PDF_Note, FB2_Note, EmptyNote
 
 
+class EmptyBook(object):
+
+    def __init__(self):
+        self.id = 0
+        self.notes = []
+
+
 class PDF_Note_Parser(object):
 
     NOTE_START = "#A*#"
@@ -47,8 +54,6 @@ class FB2_Note_Parser(object):
     def __init__(self, id, notes):
         self.id = id
         self.notes = notes
-        # self._note_text = note_text
-        # self.parse_text()
 
     @classmethod
     def from_text(cls, text):
@@ -58,8 +63,6 @@ class FB2_Note_Parser(object):
             return None
         _header, _note_lines = cls.split_note_text(lines)
         _id = 0 if _header[0] == '#' else int(_header[0])
-        # _indented = self._header[1]
-        # _trimmed = self._header[2]
 
         notes = [FB2_Note.from_str_list(l) for l in cls._notes_from_lines(_note_lines)]
         return cls(id=_id, notes=notes)
@@ -116,6 +119,8 @@ class MoonReaderNotes(object):
 
     @classmethod
     def from_file_obj(cls, flike_obj, ext):
+        if not flike_obj:
+            return EmptyBook()
         content = flike_obj.read()
         if cls._is_zipped(content):
             return cls._from_zipped_string(content, file_type=ext)
@@ -138,9 +143,7 @@ class MoonReaderNotes(object):
         if len(str_text) < 2:
             return False
         return (str_text[0], str_text[1]) == (int('78', base=16), int('9c', base=16))
-        # return str_text[0] == '78' and str_text[1] == '9c'
 
     @classmethod
     def _from_string(cls, s, file_type="fb2"):
-        # return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())
         return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())

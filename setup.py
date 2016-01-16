@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="moonreader_tools",
-    version='0.3',
+    version='0.3.2',
     description="Set of class and utilities to parse MoonReader+ book-related files.",
     url='MoonReader_tools',
     author='MrLokans',
