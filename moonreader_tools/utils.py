@@ -7,26 +7,33 @@ from .conf import NOTE_EXTENSION, STAT_EXTENSION
 
 
 def one_obj_or_list(seq):
-    """If there is one object in list - return object, either return list"""
+    """If there is one object in list - return object, otherwise return list"""
     if len(seq) == 1:
         return seq[0]
     return seq
 
 
 def get_moonreader_files(path):
+    """Return sequence of MoonReader statistsics and note files
+    in the given path"""
     files = map(lambda x: os.path.join(path, x), os.listdir(path))
     return get_moonreader_files_from_filelist(files)
 
 
 def get_moonreader_files_from_filelist(file_list):
+    """Return sequence of MoonReader statistsics and note files
+    in the given file list"""
     return filter(lambda x: x.endswith((NOTE_EXTENSION, STAT_EXTENSION)), file_list)
 
 
 def date_from_long_timestamp(str_timestamp):
+    """Moonreader files utilize awkward timestamp version,
+    so we trim it and calculate date"""
     return datetime.datetime.fromtimestamp(float(str_timestamp[:10]))
 
 
 def rgba_hex_from_int(number):
+    """Get bytes values from color integer."""
     number = int(number)
     # color is stored in overflowed integer representation (yeap, that's weird)
     byte_form = struct.pack(">i", number)
@@ -35,6 +42,7 @@ def rgba_hex_from_int(number):
 
 
 def rgb_string_from_hex(hex_seq):
+    """Produce RGB string from bytes"""
     hex_seq = hex_seq[-3:]
     str_form = map(lambda x: x.replace('0x', '').upper(), hex_seq)
     return '#' + "".join(str_form)

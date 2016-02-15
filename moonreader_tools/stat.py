@@ -11,7 +11,7 @@ class EmptyMoonReaderStatistics(object):
 
 
 class MoonReaderStatistics(object):
-
+    # TODO: use verbose regexps
     _statistics_regex = r"(^(?P<uid>[\d]+))(\*(?P<pages>[\d]+))(\@(?P<no1>[\d]+))?(#(?P<no2>[\d]+))?(:(?P<percentage>[\d.]+))%"
     _compiled_regex = re.compile(_statistics_regex)
 
@@ -22,6 +22,7 @@ class MoonReaderStatistics(object):
 
     @classmethod
     def from_file(cls, file_path):
+        """Instantiates Statistics object from file path"""
         if not file_path:
             return None
         assert file_path.endswith(STAT_EXTENSION)
@@ -31,6 +32,7 @@ class MoonReaderStatistics(object):
 
     @classmethod
     def from_file_obj(cls, flike_obj, ext=".po"):
+        """Instantiates Statistics object from file object"""
         content = flike_obj.read()
         if isinstance(content, type(b'bytes')):
             content = content.decode('utf-8')
@@ -41,6 +43,7 @@ class MoonReaderStatistics(object):
 
     @classmethod
     def from_string(cls, str_content):
+        """Instantiates Statistics object from string"""
         match = MoonReaderStatistics._compiled_regex.match(str_content)
         if not match:
             return EmptyMoonReaderStatistics()

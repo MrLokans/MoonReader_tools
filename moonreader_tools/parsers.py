@@ -29,6 +29,7 @@ class PDF_Note_Parser(object):
 
     @staticmethod
     def _find_note_text_pieces(text):
+        """Splits notes text and return notes"""
         notes = []
 
         _text = text
@@ -45,6 +46,7 @@ class PDF_Note_Parser(object):
 
     @staticmethod
     def _notes_from_note_texts(note_texts):
+        """Create note objects from text and return list"""
         return [PDF_Note.from_text(text) for text in note_texts]
 
 
