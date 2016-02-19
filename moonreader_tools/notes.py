@@ -41,7 +41,7 @@ class AbstractNote(object):
 
 class EmptyNote(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.id = 0
         self.text = ""
         self.time = None
@@ -50,6 +50,7 @@ class EmptyNote(object):
 
 
 class PDF_Note(AbstractNote):
+    """Class, used to store and parse notes in the PDF format"""
 
     SPLITTER_PATTERN = r"#A[0-9@\*]#"
     CORRESP_TABLE = (
@@ -81,6 +82,7 @@ class PDF_Note(AbstractNote):
 
     @classmethod
     def from_text(cls, text):
+        """Create note from text"""
         token_dict = cls._dict_from_text(text)
 
         style = cls._style_from_num_str(token_dict["style"])
@@ -96,12 +98,12 @@ class PDF_Note(AbstractNote):
 
         note_tokens = re.split(cls.SPLITTER_PATTERN, text)
         assert len(note_tokens) > 8
-        d = {}
+        note_dict = {}
         for item in cls.CORRESP_TABLE:
             if not item[1]:
                 continue
-            d[item[1]] = note_tokens[item[0]]
-        return d
+            note_dict[item[1]] = note_tokens[item[0]]
+        return note_dict
 
     @classmethod
     def _style_from_num_str(cls, num_str):
@@ -109,6 +111,7 @@ class PDF_Note(AbstractNote):
 
 
 class FB2_Note(AbstractNote):
+    """Class, used to store and parse notes in the FB2 format"""
 
     NOTE_SCHEME = [
         # position, len, name
@@ -153,4 +156,4 @@ class FB2_Note(AbstractNote):
         """Transform a sequence of zeros and ones into binary number"""
         if seq[-1] == NOTE_DELETED:
             seq[-1] = 0
-        return int("".join(map(str, seq)), base=2)
+        return int("".join((str(x) for x in seq)), base=2)
