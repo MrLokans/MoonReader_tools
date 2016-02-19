@@ -1,3 +1,8 @@
+"""
+This class contains parsers of different moonreader note files
+"""
+
+
 import os
 import zlib
 
@@ -6,9 +11,10 @@ from .notes import PDF_Note, FB2_Note, EmptyNote
 
 
 class EmptyBook(object):
+    """This class presents an empty book object"""
 
     def __init__(self):
-        self.id = 0
+        self.book_id = 0
         self.notes = []
 
 
@@ -17,15 +23,16 @@ class PDF_Note_Parser(object):
     NOTE_START = "#A*#"
     NOTE_END = "#A@#"
 
-    def __init__(self, id=None, notes=()):
-        self.id = id
+    def __init__(self, note_id=None, notes=()):
+        self.note_id = note_id
         self.notes = notes
 
     @classmethod
     def from_text(cls, text):
+        """Creates PDF note class instance from string"""
         note_texts = cls._find_note_text_pieces(text)
         notes = cls._notes_from_note_texts(note_texts)
-        return cls(id=None, notes=notes)
+        return cls(note_id=None, notes=notes)
 
     @staticmethod
     def _find_note_text_pieces(text):
@@ -33,7 +40,7 @@ class PDF_Note_Parser(object):
         notes = []
 
         _text = text
-        while(_text):
+        while _text:
             start_pos = _text.find(PDF_Note_Parser.NOTE_START)
             end_pos = _text.find(PDF_Note_Parser.NOTE_END)
             if start_pos != -1 and end_pos != -1:
@@ -53,12 +60,13 @@ class PDF_Note_Parser(object):
 class FB2_Note_Parser(object):
     NOTE_SPLITTER = '#'
 
-    def __init__(self, id, notes):
-        self.id = id
+    def __init__(self, note_id, notes):
+        self.note_id = note_id
         self.notes = notes
 
     @classmethod
     def from_text(cls, text):
+        """Creates FB2 note from text"""
         lines = text.splitlines()
         if len(lines) < 3:
             # TODO: rethink!
@@ -67,10 +75,11 @@ class FB2_Note_Parser(object):
         _id = 0 if _header[0] == '#' else int(_header[0])
 
         notes = [FB2_Note.from_str_list(l) for l in cls._notes_from_lines(_note_lines)]
-        return cls(id=_id, notes=notes)
+        return cls(note_id=_id, notes=notes)
 
     @staticmethod
     def split_note_text(note_lines):
+        """Splits note text into header and notes string"""
         header = note_lines[:3]
         note_text = note_lines[3:]
         return header, note_text
@@ -108,6 +117,7 @@ class MoonReaderNotes(object):
 
     @classmethod
     def from_file(cls, file_path):
+        """Creates note object from filesystem path"""
         if not os.path.exists(file_path):
             return EmptyNote()
         assert os.path.exists(file_path)
@@ -121,6 +131,7 @@ class MoonReaderNotes(object):
 
     @classmethod
     def from_file_obj(cls, flike_obj, ext):
+        """Creates note object from file-like object"""
         if not flike_obj:
             return EmptyBook()
         content = flike_obj.read()
@@ -131,6 +142,7 @@ class MoonReaderNotes(object):
 
     @classmethod
     def _from_zipped_string(cls, str_content, file_type="fb2"):
+        """Creates note object from zip-compressed string"""
         if not cls._is_zipped:
             raise ValueError("Given string is not zipped.")
         unpacked_str = cls._unpack_str(str_content)
@@ -138,14 +150,17 @@ class MoonReaderNotes(object):
 
     @staticmethod
     def _unpack_str(zipped_str):
+        """Decompresses zipped string"""
         return zlib.decompress(zipped_str)
 
     @staticmethod
     def _is_zipped(str_text):
+        """Checks whether given sequence is compressed with zip"""
         if len(str_text) < 2:
             return False
         return (str_text[0], str_text[1]) == (int('78', base=16), int('9c', base=16))
 
     @classmethod
     def _from_string(cls, s, file_type="fb2"):
+        """Creates note object from string"""
         return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())

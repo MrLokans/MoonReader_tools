@@ -50,7 +50,7 @@ class TestFB2ParserRoutines(BaseTest):
         note_1 = parser.notes[0]
 
         self.assertEqual(note_1.text, "Some text")
-        self.assertEqual(note_1.id, '2984')
+        self.assertEqual(note_1.note_id, '2984')
         self.assertEqual(note_1.modifier, AbstractNote.MARKER)
 
 
