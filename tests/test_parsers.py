@@ -1,5 +1,12 @@
 import zlib
 import unittest
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
+
 from moonreader_tools.parsers import PDF_Note_Parser, FB2_Note_Parser, MoonReaderNotes
 from moonreader_tools.stat import MoonReaderStatistics
 
@@ -76,7 +83,7 @@ class TestMoonReaderNotes(unittest.TestCase):
         sample_s = "78".encode('utf-8')
         self.assertFalse(MoonReaderNotes._is_zipped(sample_s))
 
-    @unittest.mock.patch('os.path.exists')
+    @patch('os.path.exists')
     def test_returns_empty_note_for_non_existent_path(self, mocked_exists):
         mocked_exists.return_value = False
         notes = MoonReaderNotes.from_file("a")

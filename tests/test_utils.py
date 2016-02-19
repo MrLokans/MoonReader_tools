@@ -1,6 +1,10 @@
 import os
 import unittest
-from unittest.mock import patch
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 from moonreader_tools.utils import (date_from_long_timestamp, get_moonreader_files, one_obj_or_list,
                                     rgb_string_from_hex, rgba_hex_from_int, get_same_book_files)
