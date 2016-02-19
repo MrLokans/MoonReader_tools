@@ -60,8 +60,8 @@ class PDF_Note_Parser(object):
 class FB2_Note_Parser(object):
     NOTE_SPLITTER = '#'
 
-    def __init__(self, note_id, notes):
-        self.note_id = note_id
+    def __init__(self, book_id, notes):
+        self.book_id = book_id
         self.notes = notes
 
     @classmethod
@@ -75,7 +75,7 @@ class FB2_Note_Parser(object):
         _id = 0 if _header[0] == '#' else int(_header[0])
 
         notes = [FB2_Note.from_str_list(l) for l in cls._notes_from_lines(_note_lines)]
-        return cls(note_id=_id, notes=notes)
+        return cls(book_id=_id, notes=notes)
 
     @staticmethod
     def split_note_text(note_lines):

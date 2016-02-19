@@ -44,7 +44,7 @@ class TestFB2Notes(BaseTest):
     def test_fb2_note_creation_from_str_list_works(self):
         note = FB2_Note.from_str_list(self.sample_list)
         self.assertEqual(note.text, "Some Text")
-        self.assertEqual(note.id, '1')
+        self.assertEqual(note.note_id, '1')
         self.assertEqual(note.time, datetime.datetime.fromtimestamp(int(SAMPLE_SHORT_TIMESTAMP)))
 
     def test_fb2note_correctly_handles_DELETED_attr(self):

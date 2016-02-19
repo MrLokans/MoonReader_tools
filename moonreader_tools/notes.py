@@ -13,7 +13,7 @@ class AbstractNote(object):
     WAVED = 0b001
 
     def __init__(self, note_id=0, note_text="", note_timestamp=None, note_color=(), note_modifier=0b0):
-        self.id = note_id
+        self.note_id = note_id
         self.text = note_text
         self._timestamp = note_timestamp
         self._color = note_color
@@ -42,7 +42,7 @@ class AbstractNote(object):
 class EmptyNote(object):
 
     def __init__(self):
-        self.id = 0
+        self.note_id = 0
         self.text = ""
         self.time = None
         self.modifier = 0b0
@@ -115,7 +115,7 @@ class FB2_Note(AbstractNote):
 
     NOTE_SCHEME = [
         # position, len, name
-        (0, 1, 'id'),
+        (0, 1, 'note_id'),
         (1, 1, 'title'),
         (2, 1, 'book_path'),
         (3, 1, 'book_path_lower'),
@@ -143,7 +143,7 @@ class FB2_Note(AbstractNote):
             if str_list[-1] == NOTE_DELETED:
                 is_deleted = True
             d[item[2]] = str_list[item[0]:item[0]+item[1]]
-        return cls(note_id=one_obj_or_list(d["id"]),
+        return cls(note_id=one_obj_or_list(d["note_id"]),
                    note_text=one_obj_or_list(d["text"]),
                    note_timestamp=one_obj_or_list(d["timestamp"]),
                    note_color=one_obj_or_list(d["color"]),
