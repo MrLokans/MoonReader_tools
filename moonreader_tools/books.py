@@ -1,3 +1,8 @@
+"""
+Module, containing classes used to parse book data from files and string
+"""
+
+
 import os
 import json
 
@@ -6,6 +11,7 @@ from .parsers import MoonReaderNotes
 
 
 class MoonReaderBookData(object):
+    """Class, presenting generic book data"""
 
     def __init__(self, title, stats, notes):
         self.title = title
@@ -13,15 +19,16 @@ class MoonReaderBookData(object):
         self.notes = notes
 
     def to_dict(self):
-        d = {
-           'title': self.title,
+        book_data_dict = {
+            'title': self.title,
             'pages': self.stats.pages,
             'percentage': self.stats.percentage,
             'notes': [note.to_dict() for note in self.notes]
         }
-        return d
+        return book_data_dict
 
     def to_json(self):
+        """Serializes book class into json"""
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
     @classmethod
@@ -40,9 +47,11 @@ class MoonReaderBookData(object):
         if book_ext == "zip":
             book_ext = fname.split('.')[-3]
         book_title = cls._title_from_fname(fname)
+        book_stat = MoonReaderStatistics.from_file_obj(dct["stat_file"][1])
+        book_notes = MoonReaderNotes.from_file_obj(dct["note_file"][1], book_ext).notes
         return MoonReaderBookData(book_title,
-                                  MoonReaderStatistics.from_file_obj(dct["stat_file"][1]),
-                                  MoonReaderNotes.from_file_obj(dct["note_file"][1], book_ext).notes)
+                                  book_stat,
+                                  book_notes)
 
     @classmethod
     def _title_from_fname(cls, fname):

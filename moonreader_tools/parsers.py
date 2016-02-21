@@ -19,7 +19,7 @@ class EmptyBook(object):
 
 
 class PDF_Note_Parser(object):
-
+    """Parser for PDF book format"""
     NOTE_START = "#A*#"
     NOTE_END = "#A@#"
 
@@ -58,6 +58,8 @@ class PDF_Note_Parser(object):
 
 
 class FB2_Note_Parser(object):
+    """Parser for FB2 book format"""
+
     NOTE_SPLITTER = '#'
 
     def __init__(self, book_id, notes):
@@ -104,6 +106,9 @@ class FB2_Note_Parser(object):
 
 
 class MoonReaderNotes(object):
+    """
+    Class, that defines what parsing stategy should be applied for the specified file.
+    """
 
     PARSE_STATEGIES = {
         'pdf': PDF_Note_Parser,
@@ -126,8 +131,8 @@ class MoonReaderNotes(object):
         book_extension = file_path.split(".")[-2]
         if book_extension == "zip":
             book_extension = file_path.split(".")[-3]
-        with open(file_path, 'rb') as f:
-            return cls.from_file_obj(f, book_extension)
+        with open(file_path, 'rb') as book_notes_f:
+            return cls.from_file_obj(book_notes_f, book_extension)
 
     @classmethod
     def from_file_obj(cls, flike_obj, ext):

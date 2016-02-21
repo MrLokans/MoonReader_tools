@@ -1,8 +1,12 @@
+"""
+This module contains classes capable of parsing MoonReader's statistics files.
+"""
 import re
 from .conf import STAT_EXTENSION
 
 
 class EmptyMoonReaderStatistics(object):
+    """Empty moonreader statistics file representation"""
 
     def __init__(self):
         self.uid = 0
@@ -11,8 +15,12 @@ class EmptyMoonReaderStatistics(object):
 
 
 class MoonReaderStatistics(object):
-    # TODO: use verbose regexps
-    _statistics_regex = r"(^(?P<uid>[\d]+))(\*(?P<pages>[\d]+))(\@(?P<no1>[\d]+))?(#(?P<no2>[\d]+))?(:(?P<percentage>[\d.]+))%"
+    _statistics_regex = """\
+(^(?P<uid>[\d]+))\
+(\*(?P<pages>[\d]+))\
+(\@(?P<no1>[\d]+))?\
+(#(?P<no2>[\d]+))?\
+(:(?P<percentage>[\d.]+))%"""
     _compiled_regex = re.compile(_statistics_regex)
 
     def __init__(self, uid, pages, percentage, **kwargs):
@@ -31,7 +39,7 @@ class MoonReaderStatistics(object):
             return cls.from_file_obj(f)
 
     @classmethod
-    def from_file_obj(cls, flike_obj, ext=".po"):
+    def from_file_obj(cls, flike_obj):
         """Instantiates Statistics object from file object"""
         content = flike_obj.read()
         if isinstance(content, type(b'bytes')):
