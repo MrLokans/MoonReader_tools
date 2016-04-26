@@ -40,7 +40,7 @@ def rgba_hex_from_int(number):
     """Get bytes values from color integer."""
     number = int(number)
     # color is stored in overflowed integer representation (yeap, that's weird)
-    byte_form = struct.pack(">i", number)
+    byte_form = bytearray(struct.pack(">i", number))
     byte_values = (hex(x) for x in byte_form)
     return list(byte_values)
 
