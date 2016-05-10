@@ -5,6 +5,14 @@ from moonreader_tools.notes import PDF_Note, FB2_Note, AbstractNote
 from .base import BaseTest, SAMPLE_SHORT_TIMESTAMP
 
 
+class TestAbstractNotes(unittest.TestCase):
+
+    def test_str_repr_works(self):
+        note_text = "Simple Note"
+        note = AbstractNote(note_text=note_text)
+        self.assertEqual(str(note), note_text)
+
+
 class TestPDFNotes(unittest.TestCase):
 
     def test_single_note_parses_correctly(self):
