@@ -1,4 +1,5 @@
 import re
+import abc
 import json
 
 from .conf import NOTE_DELETED
@@ -7,36 +8,52 @@ from .utils import date_from_long_timestamp, one_obj_or_list
 
 class AbstractNote(object):
 
+    __metaclass__ = abc.ABCMeta
+
     CROSSED = 0b010
     MARKER = 0b0
     UNDERLINE = 0b100
     WAVED = 0b001
 
-    def __init__(self, note_id=0, note_text="", note_timestamp=None, note_color=(), note_modifier=0b0):
+    def __init__(self,
+                 note_id=0,
+                 note_text="",
+                 note_timestamp=None,
+                 note_color=(),
+                 note_modifier=0b0,
+                 content=""
+                 ):
         self.note_id = note_id
         self.text = note_text
         self._timestamp = note_timestamp
+        self._content = content
         self._color = note_color
         self.modifier = note_modifier
+
+    @abc.abstractmethod
+    def from_text(cls, str):
+        pass
 
     @property
     def time(self):
         return date_from_long_timestamp(self._timestamp)
 
     def to_dict(self):
+        """Dump note to dictionary"""
         return {
             'text': self.text,
             'date': str(date_from_long_timestamp(self._timestamp))
         }
 
     def to_json(self):
+        """Dump note to JSON string"""
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
     def _color_from_number(self):
         return self._color
 
     def __str__(self):
-        return self.text
+        return '<Note: {}>'.format(self.text)
 
 
 class EmptyNote(object):
@@ -73,12 +90,13 @@ class PDF_Note(AbstractNote):
         "3": AbstractNote.WAVED,
     }
 
-    def __init__(self, text, timestamp, style, color):
+    def __init__(self, text, timestamp, style, color, content=""):
         super(PDF_Note, self).__init__(note_id=0,
                                        note_text=text,
                                        note_timestamp=timestamp,
                                        note_modifier=style,
-                                       note_color=color)
+                                       note_color=color,
+                                       content=content)
 
     @classmethod
     def from_text(cls, text):
@@ -90,7 +108,8 @@ class PDF_Note(AbstractNote):
         return cls(text=token_dict.get("text", ""),
                    timestamp=token_dict.get("timestamp", ""),
                    style=style,
-                   color=token_dict.get("color", ""))
+                   color=token_dict.get("color", ""),
+                   content=text)
 
     @classmethod
     def _dict_from_text(cls, text):
@@ -130,10 +149,25 @@ class FB2_Note(AbstractNote):
         (13, 3, 'modifier_bits'),
     ]
 
-    def __init__(self, note_id, note_text, note_timestamp, note_color, note_modifier, is_deleted=False):
+    def __init__(self, note_id,
+                 note_text,
+                 note_timestamp,
+                 note_color,
+                 note_modifier,
+                 is_deleted=False,
+                 content=""):
         super(FB2_Note, self).__init__(note_id, note_text,
-                                       note_timestamp, note_color, note_modifier)
+                                       note_timestamp,
+                                       note_color,
+                                       note_modifier,
+                                       content=content)
         self.is_deleted = is_deleted
+
+    @classmethod
+    def from_text(cls, text):
+        """Returns note objects from parsed text"""
+        lines = text.splitlines()
+        return cls.from_str_list(lines)
 
     @classmethod
     def from_str_list(cls, str_list):
@@ -142,14 +176,14 @@ class FB2_Note(AbstractNote):
         for item in cls.NOTE_SCHEME:
             if str_list[-1] == NOTE_DELETED:
                 is_deleted = True
-            d[item[2]] = str_list[item[0]:item[0]+item[1]]
+            d[item[2]] = str_list[item[0]:item[0] + item[1]]
         return cls(note_id=one_obj_or_list(d["note_id"]),
                    note_text=one_obj_or_list(d["text"]),
                    note_timestamp=one_obj_or_list(d["timestamp"]),
                    note_color=one_obj_or_list(d["color"]),
                    note_modifier=cls.modifier_from_seq(d["modifier_bits"]),
-                   is_deleted=is_deleted
-                   )
+                   is_deleted=is_deleted,
+                   content="\n".join(str_list))
 
     @staticmethod
     def modifier_from_seq(seq):

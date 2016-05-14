@@ -1,41 +1,42 @@
 """
-This class contains parsers of different moonreader note files
+This class contains parsers of different moonreader note files.
+Every parser knows how to extrat notes from specifi vook file format
 """
 
 
 import os
+import abc
 import zlib
 
 from .conf import NOTE_EXTENSION
-from .notes import PDF_Note, FB2_Note, EmptyNote
+from .notes import PDF_Note, FB2_Note
 
 
-class EmptyBook(object):
-    """This class presents an empty book object"""
+class BaseParser(object):
 
-    def __init__(self):
-        self.book_id = 0
-        self.notes = []
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def from_text(cls, text):
+        """Parse given string and return a sequence of note objects"""
+        pass
 
 
-class PDF_Note_Parser(object):
+class PDF_Note_Parser(BaseParser):
     """Parser for PDF book format"""
     NOTE_START = "#A*#"
     NOTE_END = "#A@#"
-
-    def __init__(self, note_id=None, notes=()):
-        self.note_id = note_id
-        self.notes = notes
+    PARSED_FORMAT = "PDF"
 
     @classmethod
     def from_text(cls, text):
         """Creates PDF note class instance from string"""
         note_texts = cls._find_note_text_pieces(text)
         notes = cls._notes_from_note_texts(note_texts)
-        return cls(note_id=None, notes=notes)
+        return notes
 
-    @staticmethod
-    def _find_note_text_pieces(text):
+    @classmethod
+    def _find_note_text_pieces(cls, text):
         """Splits notes text and return notes"""
         notes = []
 
@@ -44,27 +45,25 @@ class PDF_Note_Parser(object):
             start_pos = _text.find(PDF_Note_Parser.NOTE_START)
             end_pos = _text.find(PDF_Note_Parser.NOTE_END)
             if start_pos != -1 and end_pos != -1:
-                note_text = _text[start_pos:end_pos+len(PDF_Note_Parser.NOTE_END)]
+                note_len = len(PDF_Note_Parser.NOTE_END)
+                note_text = _text[start_pos:end_pos + note_len]
                 notes.append(note_text)
             else:
                 break
-            _text = _text[end_pos+len(PDF_Note_Parser.NOTE_END):]
+            _text = _text[end_pos + len(PDF_Note_Parser.NOTE_END):]
         return notes
 
-    @staticmethod
-    def _notes_from_note_texts(note_texts):
+    @classmethod
+    def _notes_from_note_texts(cls, note_texts):
         """Create note objects from text and return list"""
         return [PDF_Note.from_text(text) for text in note_texts]
 
 
-class FB2_Note_Parser(object):
+class FB2_Note_Parser(BaseParser):
     """Parser for FB2 book format"""
 
     NOTE_SPLITTER = '#'
-
-    def __init__(self, book_id, notes):
-        self.book_id = book_id
-        self.notes = notes
+    PARSED_FORMAT = "FB2"
 
     @classmethod
     def from_text(cls, text):
@@ -74,10 +73,10 @@ class FB2_Note_Parser(object):
             # TODO: rethink!
             return None
         _header, _note_lines = cls.split_note_text(lines)
-        _id = 0 if _header[0] == '#' else int(_header[0])
-
-        notes = [FB2_Note.from_str_list(l) for l in cls._notes_from_lines(_note_lines)]
-        return cls(book_id=_id, notes=notes)
+        text_chunks = cls._note_text_chunks(_note_lines)
+        notes = [FB2_Note.from_text(text_chunk)
+                 for text_chunk in text_chunks]
+        return notes
 
     @staticmethod
     def split_note_text(note_lines):
@@ -86,28 +85,29 @@ class FB2_Note_Parser(object):
         note_text = note_lines[3:]
         return header, note_text
 
-    @staticmethod
-    def _notes_from_lines(lines):
+    @classmethod
+    def _note_text_chunks(cls, lines):
+        """Accepts lines of text and splits them into
+        separate chunks, each chunk containing lines belonging
+        to the same note"""
         notes = []
         splitter_pos = []
         for i, tok in enumerate(lines):
-            if tok == FB2_Note_Parser.NOTE_SPLITTER:
+            if tok == cls.NOTE_SPLITTER:
                 splitter_pos.append(i)
         splitter_pos.append(len(lines))
 
         splitter_len = len(splitter_pos)
         for i, pos in enumerate(splitter_pos):
-            if i < splitter_len-1:
-                notes.append(lines[pos+1:splitter_pos[i+1]])
+            if i < splitter_len - 1:
+                notes.append("\n".join(lines[pos + 1:splitter_pos[i + 1]]))
+        print(notes)
         return notes
-
-    def _note_from_str_list(self, str_list):
-        pass
 
 
 class MoonReaderNotes(object):
     """
-    Class, that defines what parsing stategy should be applied for the specified file.
+    Class, that defines what parsing strategy should be applied for the specified file.
     """
 
     PARSE_STATEGIES = {
@@ -116,15 +116,11 @@ class MoonReaderNotes(object):
         'fb2': FB2_Note_Parser,
     }
 
-    # def __init__(self, id=id, notes=notes):
-    #     self.id = id
-    #     self.notes = notes
-
     @classmethod
     def from_file(cls, file_path):
         """Creates note object from filesystem path"""
         if not os.path.exists(file_path):
-            return EmptyNote()
+            return []
         assert os.path.exists(file_path)
         assert file_path.endswith(NOTE_EXTENSION)
 
@@ -138,7 +134,7 @@ class MoonReaderNotes(object):
     def from_file_obj(cls, flike_obj, ext):
         """Creates note object from file-like object"""
         if not flike_obj:
-            return EmptyBook()
+            raise ValueError("No flike object supplied!")
         content = flike_obj.read()
         if cls._is_zipped(content):
             return cls._from_zipped_string(content, file_type=ext)
@@ -166,6 +162,15 @@ class MoonReaderNotes(object):
         return (str_text[0], str_text[1]) == (int('78', base=16), int('9c', base=16))
 
     @classmethod
+    def _strategy_from_ext(cls, ext):
+        strategy = cls.PARSE_STATEGIES.get(ext, None)
+        if strategy is None:
+            err_msg = "No known parsing startegy for {} format".format(ext)
+            raise ValueError(err_msg)
+        return strategy
+
+    @classmethod
     def _from_string(cls, s, file_type="fb2"):
         """Creates note object from string"""
-        return cls.PARSE_STATEGIES.get(file_type).from_text(s.decode())
+        strategy = cls._strategy_from_ext(file_type)
+        return strategy.from_text(s.decode())
