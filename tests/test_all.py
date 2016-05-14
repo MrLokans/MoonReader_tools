@@ -1,7 +1,11 @@
 import unittest
 
 from .test_utils import TestFileRoutines, TestColorExtractingRoutines, TestHelperMethods
-from .test_parsers import TestPDFParserRoutines, TestFB2ParserRoutines, TestStatistics, TestMoonReaderNotes
+from .test_parsers import (
+    TestPDFParserRoutines, TestFB2ParserRoutines,
+    TestStatisticsParser, TestMoonReaderNotes,
+    TestGenericParsers
+)
 from .test_notes import TestPDFNotes, TestFB2Notes
 
 if __name__ == '__main__':
@@ -14,7 +18,8 @@ if __name__ == '__main__':
 
         loader.loadTestsFromTestCase(TestPDFParserRoutines),
         loader.loadTestsFromTestCase(TestFB2ParserRoutines),
-        loader.loadTestsFromTestCase(TestStatistics),
+        loader.loadTestsFromTestCase(TestGenericParsers),
+        loader.loadTestsFromTestCase(TestStatisticsParser),
         loader.loadTestsFromTestCase(TestMoonReaderNotes),
 
         loader.loadTestsFromTestCase(TestPDFNotes),
