@@ -7,18 +7,22 @@ from .conf import STAT_EXTENSION
 
 
 class Statistics(object):
-    _statistics_regex = """\
-(^(?P<uid>[\d]+))\
-(\*(?P<pages>[\d]+))\
-(\@(?P<no1>[\d]+))?\
-(#(?P<no2>[\d]+))?\
-(:(?P<percentage>[\d.]+))%"""
-    _compiled_regex = re.compile(_statistics_regex)
+    """Class responsible for statistics data parsing, storage
+and, in future releases, writing"""
+    _statistics_regex = r"""
+(^(?P<uid>[\d]+))           # book id
+(\*(?P<pages>[\d]+))        # total number of pages
+(\@(?P<no1>[\d]+))?         # unknown field 1
+(\#(?P<no2>[\d]+))?         # unknown field 1
+(:(?P<percentage>[\d.]+))%  # ratio of already read pages
+"""
+    _compiled_regex = re.compile(_statistics_regex, re.VERBOSE)
 
     def __init__(self, uid, pages, percentage, **kwargs):
         self.uid = uid
         self.pages = int(pages)
         self.percentage = float(percentage)
+        self._rest = kwargs
 
     @classmethod
     def from_file(cls, file_path):
@@ -27,8 +31,8 @@ class Statistics(object):
             raise ValueError("File does not exist: {}".format(file_path))
         assert file_path.endswith(STAT_EXTENSION)
 
-        with open(file_path, encoding="utf-8") as f:
-            return cls.from_file_obj(f)
+        with open(file_path, encoding="utf-8") as stat_file:
+            return cls.from_file_obj(stat_file)
 
     @classmethod
     def from_file_obj(cls, flike_obj):
@@ -46,13 +50,17 @@ class Statistics(object):
         """Instantiates Statistics object from string"""
         match = cls._compiled_regex.match(str_content)
         if not match:
-            return cls.empty_stats()
+            raise ValueError("Note content cannot be analyzed.")
+            # return cls.empty_stats()
         items = match.groupdict()
         return cls(**items)
 
     @classmethod
     def empty_stats(cls):
+        """Returns empty statistics object."""
         return cls(0, 0, 0)
 
     def is_empty(self):
+        """Checks whether the statistics object is with empty
+statistics data."""
         return self.uid == 0 and self.pages == 0 and self.percentage == 0

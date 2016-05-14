@@ -50,7 +50,7 @@ def main():
         moonreader_files = get_moonreader_files_from_filelist(files)
         file_pairs = get_same_book_files(moonreader_files)
         dicts = dicts_from_pairs(client, file_pairs)
-        books_data = [Book._from_fobj_dict(d).to_dict()
+        books_data = [Book.from_fobj_dict(d).to_dict()
                       for d in dicts]
         pprint.pprint(books_data)
     if args.path:
@@ -62,7 +62,7 @@ def main():
 
         moonreader_files = get_moonreader_files(args.path)
         tuples = get_same_book_files(moonreader_files)
-        books = [Book._from_file_tuple(x) for x in tuples]
+        books = [Book.from_file_tuple(x) for x in tuples]
         book_dict = {"books": [book.to_dict() for book in books]}
         if args.output_file:
             with open(args.output_file, "w") as result_f:

@@ -9,8 +9,8 @@ except ImportError:
 
 
 from moonreader_tools.parsers import (
-    PDF_Note_Parser,
-    FB2_Note_Parser,
+    PDFNoteParser,
+    FB2NoteParser,
     MoonReaderNotes
 )
 from moonreader_tools.stat import Statistics
@@ -25,7 +25,7 @@ class TestPDFParserRoutines(BaseTest):
 
     def test_notes_are_correctly_parsed(self):
         text = "245#A*#8#A1#1451496313379#A2#291#A3#301#A4#-256#A5#0#A6##A7# sample_text_1#A@##A*#9#A1#1451496349963#A2#4#A3#0#A4#-16711936#A5#0#A6##A7# sample_text_2#A@#"
-        notes = PDF_Note_Parser.from_text(text)
+        notes = PDFNoteParser.from_text(text)
 
         self.assertEqual(len(notes), 2)
         self.assertEqual(notes[0].text, " sample_text_1")
@@ -33,7 +33,7 @@ class TestPDFParserRoutines(BaseTest):
 
     def test_note_texts_splitted_correctly(self):
         pdf_text = "245#A*#<note_contents_1>#A@##A*#<note_contents_2>#A@#"
-        note_texts = PDF_Note_Parser._find_note_text_pieces(text=pdf_text)
+        note_texts = PDFNoteParser._find_note_text_pieces(text=pdf_text)
         self.assertEqual(len(note_texts), 2)
         self.assertEqual(note_texts[0], "#A*#<note_contents_1>#A@#")
         self.assertEqual(note_texts[1], "#A*#<note_contents_2>#A@#")
@@ -45,12 +45,12 @@ class TestFB2ParserRoutines(BaseTest):
         header = self.generate_note_header()
         note_text = self.generate_note_text()
         note_content = header + note_text
-        splitted_header, splitted_note_text = FB2_Note_Parser.split_note_text(note_content.splitlines())
+        splitted_header, splitted_note_text = FB2NoteParser.split_note_text(note_content.splitlines())
         self.assertEqual(header.splitlines(), splitted_header)
         self.assertEqual(note_text.splitlines(), splitted_note_text)
 
     def test_reads_raw_text_correctly(self):
-        notes = FB2_Note_Parser.from_text(self.sample_note_text)
+        notes = FB2NoteParser.from_text(self.sample_note_text)
 
         self.assertEqual(len(notes), 2)
         note_1 = notes[0]

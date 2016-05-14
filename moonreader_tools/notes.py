@@ -1,3 +1,5 @@
+"""Collection of classes that present different book formats' notes"""
+
 import re
 import abc
 import json
@@ -7,6 +9,7 @@ from .utils import date_from_long_timestamp, one_obj_or_list
 
 
 class AbstractNote(object):
+    """Abstract class for all other note parsers"""
 
     __metaclass__ = abc.ABCMeta
 
@@ -31,7 +34,8 @@ class AbstractNote(object):
         self.modifier = note_modifier
 
     @abc.abstractmethod
-    def from_text(cls, str):
+    def from_text(self, text):
+        """Creates note object from text"""
         pass
 
     @property
@@ -52,21 +56,19 @@ class AbstractNote(object):
     def _color_from_number(self):
         return self._color
 
+    @classmethod
+    def empty(cls):
+        return cls(note_id=0,
+                   text="",
+                   time=None,
+                   modifier=0b0,
+                   notes=[])
+
     def __str__(self):
         return '<Note: {}>'.format(self.text)
 
 
-class EmptyNote(object):
-
-    def __init__(self):
-        self.note_id = 0
-        self.text = ""
-        self.time = None
-        self.modifier = 0b0
-        self.notes = []
-
-
-class PDF_Note(AbstractNote):
+class PDFNote(AbstractNote):
     """Class, used to store and parse notes in the PDF format"""
 
     SPLITTER_PATTERN = r"#A[0-9@\*]#"
@@ -91,12 +93,12 @@ class PDF_Note(AbstractNote):
     }
 
     def __init__(self, text, timestamp, style, color, content=""):
-        super(PDF_Note, self).__init__(note_id=0,
-                                       note_text=text,
-                                       note_timestamp=timestamp,
-                                       note_modifier=style,
-                                       note_color=color,
-                                       content=content)
+        super(PDFNote, self).__init__(note_id=0,
+                                      note_text=text,
+                                      note_timestamp=timestamp,
+                                      note_modifier=style,
+                                      note_color=color,
+                                      content=content)
 
     @classmethod
     def from_text(cls, text):
@@ -129,7 +131,7 @@ class PDF_Note(AbstractNote):
         return cls.STYLE_CORRESP[num_str]
 
 
-class FB2_Note(AbstractNote):
+class FB2Note(AbstractNote):
     """Class, used to store and parse notes in the FB2 format"""
 
     NOTE_SCHEME = [
@@ -156,11 +158,11 @@ class FB2_Note(AbstractNote):
                  note_modifier,
                  is_deleted=False,
                  content=""):
-        super(FB2_Note, self).__init__(note_id, note_text,
-                                       note_timestamp,
-                                       note_color,
-                                       note_modifier,
-                                       content=content)
+        super(FB2Note, self).__init__(note_id, note_text,
+                                      note_timestamp,
+                                      note_color,
+                                      note_modifier,
+                                      content=content)
         self.is_deleted = is_deleted
 
     @classmethod
@@ -171,6 +173,8 @@ class FB2_Note(AbstractNote):
 
     @classmethod
     def from_str_list(cls, str_list):
+        """In text file single note is presented as a sequence of lines,
+        this method creates Note object from them"""
         d = {}
         is_deleted = False
         for item in cls.NOTE_SCHEME:

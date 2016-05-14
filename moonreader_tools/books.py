@@ -21,27 +21,20 @@ class Book(object):
 
     def to_dict(self):
         """Serialize book to dictionary"""
-        try:
-            d = {
-                "title": self.title,
-                "pages": self.pages,
-                'percentage': self.percentage,
-                'notes': [note.to_dict() for note in self.notes]
-            }
-        except:
-            print(self.title)
-            print(self.pages)
-            print(self.percentage)
-            print(self.notes)
-            exit()
-        return d
+        book_dict = {
+            "title": self.title,
+            "pages": self.pages,
+            'percentage': self.percentage,
+            'notes': [note.to_dict() for note in self.notes]
+        }
+        return book_dict
 
     def to_json(self):
         """Serializes book class into json"""
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
     @classmethod
-    def _from_file_tuple(cls, tpl):
+    def from_file_tuple(cls, tpl):
         stat_file, note_file = tpl
         fname = stat_file if stat_file else note_file
         title = cls._title_from_fname(fname)
@@ -50,7 +43,7 @@ class Book(object):
                    MoonReaderNotes.from_file(stat_file))
 
     @classmethod
-    def _from_fobj_dict(cls, dct):
+    def from_fobj_dict(cls, dct):
         fname = dct["stat_file"][0] if dct["stat_file"] else dct["note_file"][0]
         book_ext = fname.split('.')[-2]
         if book_ext == "zip":
@@ -84,5 +77,5 @@ class Book(object):
 
     @classmethod
     def empty_book(cls):
+        """Construct empty book object"""
         return cls("", None, None)
-

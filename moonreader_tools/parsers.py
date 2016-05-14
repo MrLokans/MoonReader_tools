@@ -9,20 +9,20 @@ import abc
 import zlib
 
 from .conf import NOTE_EXTENSION
-from .notes import PDF_Note, FB2_Note
+from .notes import PDFNote, FB2Note
 
 
 class BaseParser(object):
-
+    """Base class for every parser"""
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def from_text(cls, text):
+    def from_text(self, text):
         """Parse given string and return a sequence of note objects"""
         pass
 
 
-class PDF_Note_Parser(BaseParser):
+class PDFNoteParser(BaseParser):
     """Parser for PDF book format"""
     NOTE_START = "#A*#"
     NOTE_END = "#A@#"
@@ -42,24 +42,24 @@ class PDF_Note_Parser(BaseParser):
 
         _text = text
         while _text:
-            start_pos = _text.find(PDF_Note_Parser.NOTE_START)
-            end_pos = _text.find(PDF_Note_Parser.NOTE_END)
+            start_pos = _text.find(PDFNoteParser.NOTE_START)
+            end_pos = _text.find(PDFNoteParser.NOTE_END)
             if start_pos != -1 and end_pos != -1:
-                note_len = len(PDF_Note_Parser.NOTE_END)
+                note_len = len(PDFNoteParser.NOTE_END)
                 note_text = _text[start_pos:end_pos + note_len]
                 notes.append(note_text)
             else:
                 break
-            _text = _text[end_pos + len(PDF_Note_Parser.NOTE_END):]
+            _text = _text[end_pos + len(PDFNoteParser.NOTE_END):]
         return notes
 
     @classmethod
     def _notes_from_note_texts(cls, note_texts):
         """Create note objects from text and return list"""
-        return [PDF_Note.from_text(text) for text in note_texts]
+        return [PDFNote.from_text(text) for text in note_texts]
 
 
-class FB2_Note_Parser(BaseParser):
+class FB2NoteParser(BaseParser):
     """Parser for FB2 book format"""
 
     NOTE_SPLITTER = '#'
@@ -72,9 +72,9 @@ class FB2_Note_Parser(BaseParser):
         if len(lines) < 3:
             # TODO: rethink!
             return None
-        _header, _note_lines = cls.split_note_text(lines)
+        _, _note_lines = cls.split_note_text(lines)
         text_chunks = cls._note_text_chunks(_note_lines)
-        notes = [FB2_Note.from_text(text_chunk)
+        notes = [FB2Note.from_text(text_chunk)
                  for text_chunk in text_chunks]
         return notes
 
@@ -111,9 +111,9 @@ class MoonReaderNotes(object):
     """
 
     PARSE_STATEGIES = {
-        'pdf': PDF_Note_Parser,
-        'epub': FB2_Note_Parser,
-        'fb2': FB2_Note_Parser,
+        'pdf': PDFNoteParser,
+        'epub': FB2NoteParser,
+        'fb2': FB2NoteParser,
     }
 
     @classmethod
@@ -170,7 +170,7 @@ class MoonReaderNotes(object):
         return strategy
 
     @classmethod
-    def _from_string(cls, s, file_type="fb2"):
+    def _from_string(cls, line, file_type="fb2"):
         """Creates note object from string"""
         strategy = cls._strategy_from_ext(file_type)
-        return strategy.from_text(s.decode())
+        return strategy.from_text(line.decode())
