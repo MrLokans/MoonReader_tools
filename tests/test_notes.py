@@ -26,6 +26,18 @@ class TestPDFNotes(unittest.TestCase):
         self.assertEqual(d.get("style", ""), "2")
         self.assertEqual(d.get("text", ""), "test_text")
 
+    def test_dumping_note_to_string_works(self):
+        note_text = "#A*#11#A1#1451497221825#A2#643#A3#646#A4#-11184811#A5#2#A6##A7#test_text#A@#"
+
+        d = PDFNote.from_text(note_text)
+        dumped_text = d.to_string()
+        dumped_note = PDFNote.from_text(dumped_text)
+
+        self.assertEqual(dumped_note.text, "test_text")
+        self.assertEqual(dumped_note._timestamp, "1451497221825")
+        self.assertEqual(dumped_note._color, "-11184811")
+        self.assertEqual(dumped_note.modifier, AbstractNote.CROSSED)
+
     def test_note_inited_from_text_correctly(self):
         note_text = "#A*#11#A1#1451497221825#A2#643#A3#646#A4#-11184811#A5#2#A6##A7#test_text#A@#"
 
@@ -54,6 +66,14 @@ class TestFB2Notes(BaseTest):
         self.assertEqual(note.text, "Some Text")
         self.assertEqual(note.note_id, '1')
         self.assertEqual(note.time, datetime.datetime.fromtimestamp(int(SAMPLE_SHORT_TIMESTAMP)))
+
+    def test_dumping_note_to_str_works(self):
+        note = FB2Note.from_str_list(self.sample_list)
+        t = note.to_string()
+        dumped_note = FB2Note.from_text(t)
+        self.assertEqual(dumped_note.text, "Some Text")
+        self.assertEqual(dumped_note.note_id, '1')
+        self.assertEqual(dumped_note.time, datetime.datetime.fromtimestamp(int(SAMPLE_SHORT_TIMESTAMP)))
 
     def test_fb2note_correctly_handles_DELETED_attr(self):
         note = FB2Note.from_str_list(self.deleted_note_list)
