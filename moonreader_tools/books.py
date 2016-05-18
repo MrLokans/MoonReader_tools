@@ -10,6 +10,12 @@ from .stat import Statistics
 from .parsers import MoonReaderNotes
 
 
+class NoteRepresentation(object):
+    """This class wraps note objects and
+    provides interface to update every note"""
+    pass
+
+
 class Book(object):
 
     def __init__(self, title, stats, notes):
@@ -18,6 +24,7 @@ class Book(object):
         self.pages = self._stats.pages
         self.percentage = self._stats.percentage
         self.notes = notes
+        self._notes = NoteRepresentation(notes)
 
     def to_dict(self):
         """Serialize book to dictionary"""
@@ -54,6 +61,17 @@ class Book(object):
         return cls(book_title,
                    book_stat,
                    book_notes)
+
+    def read_stat(self, text="", filename=""):
+        """Update reading statistics representation
+        from string of from specified file"""
+        stat = None
+        if text:
+            stat = Statistics.from_string(stat)
+        elif filename:
+            stat = Statistics.from_file(filename)
+        self._stats = stat
+        return stat
 
     @classmethod
     def _title_from_fname(cls, fname):

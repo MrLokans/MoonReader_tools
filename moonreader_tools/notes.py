@@ -53,6 +53,12 @@ class AbstractNote(object):
         """Dump note to JSON string"""
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
+    @abc.abstractmethod
+    def to_string(self):
+        """Serialize note back to string, to be understood by
+        e-book reader"""
+        pass
+
     def _color_from_number(self):
         return self._color
 
@@ -130,6 +136,10 @@ class PDFNote(AbstractNote):
     def _style_from_num_str(cls, num_str):
         return cls.STYLE_CORRESP[num_str]
 
+    def to_string(self):
+        """Build string representation used by the e-book reader"""
+        return ""
+
 
 class FB2Note(AbstractNote):
     """Class, used to store and parse notes in the FB2 format"""
@@ -195,3 +205,7 @@ class FB2Note(AbstractNote):
         if seq[-1] == NOTE_DELETED:
             seq[-1] = 0
         return int("".join((str(x) for x in seq)), base=2)
+
+    def to_string(self):
+        """Build string representation used by the e-book reader"""
+        return ""
