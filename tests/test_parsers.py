@@ -18,7 +18,7 @@ from moonreader_tools.stat import Statistics
 from moonreader_tools.notes import AbstractNote
 from moonreader_tools.conf import STAT_EXTENSION
 
-from .base import BaseTest
+from tests.base import BaseTest
 
 
 class TestPDFParserRoutines(BaseTest):

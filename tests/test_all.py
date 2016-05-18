@@ -1,12 +1,16 @@
 import unittest
 
-from .test_utils import TestFileRoutines, TestColorExtractingRoutines, TestHelperMethods
-from .test_parsers import (
+from tests.test_utils import (
+    TestFileRoutines,
+    TestColorExtractingRoutines,
+    TestHelperMethods
+)
+from tests.test_parsers import (
     TestPDFParserRoutines, TestFB2ParserRoutines,
     TestStatisticsParser, TestMoonReaderNotes,
     TestGenericParsers
 )
-from .test_notes import TestPDFNotes, TestFB2Notes
+from tests.test_notes import TestPDFNotes, TestFB2Notes
 
 if __name__ == '__main__':
 

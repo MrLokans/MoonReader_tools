@@ -2,7 +2,7 @@ import unittest
 import datetime
 from moonreader_tools.notes import PDFNote, FB2Note, AbstractNote
 
-from .base import BaseTest, SAMPLE_SHORT_TIMESTAMP
+from tests.base import BaseTest, SAMPLE_SHORT_TIMESTAMP
 
 
 class TestAbstractNotes(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestAbstractNotes(unittest.TestCase):
     def test_str_repr_works(self):
         note_text = "Simple Note"
         note = AbstractNote(note_text=note_text)
-        self.assertEqual(str(note), note_text)
+        self.assertEqual(str(note), "<Note: {}>".format(note_text))
 
 
 class TestPDFNotes(unittest.TestCase):
