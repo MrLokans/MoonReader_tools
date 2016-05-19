@@ -1,3 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
+
+
 def filepaths_from_metadata(meta):
     """Extracts paths from dropbox metadata objects"""
     return [d['path'] for d in meta['contents']]
@@ -8,7 +11,8 @@ def dicts_from_pairs(client, pairs):
     dicts = []
 
     for i, pair in enumerate(pairs):
-        handle_download(client, dicts, pair, i)
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            executor.submit(handle_download, client, dicts, pair, i)
     return dicts
 
 

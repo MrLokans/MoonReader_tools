@@ -35,6 +35,10 @@ def parse_args():
     parser.add_argument('--dropbox-path',
                         default=DEFAULT_DROPBOX_PATH,
                         help='Token to access your dropbox account')
+    parser.add_argument('--dropbox-number',
+                        default=5,
+                        type=int,
+                        help='Number of books to get data about from dropbox.')
     return parser.parse_args()
 
 
@@ -48,13 +52,13 @@ def main():
         meta = client.metadata(args.dropbox_path)
         files = filepaths_from_metadata(meta)
         moonreader_files = get_moonreader_files_from_filelist(files)
-        file_pairs = get_same_book_files(moonreader_files)
+        file_pairs = get_same_book_files(moonreader_files)[:args.dropbox_number]
         dicts = dicts_from_pairs(client, file_pairs)
         books_data = [Book.from_fobj_dict(d).to_dict()
                       for d in dicts]
         pprint.pprint(books_data)
     if args.path:
-        print(args.path)
+
         if not os.path.exists(args.path):
             raise OSError("Specified path does not exist.")
         if not os.path.isdir(args.path):

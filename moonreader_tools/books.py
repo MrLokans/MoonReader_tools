@@ -18,13 +18,16 @@ class NoteRepresentation(object):
 
 class Book(object):
 
-    def __init__(self, title, stats, notes):
+    def __init__(self, title, stats, notes=None):
         self.title = title
         self._stats = stats
         self.pages = self._stats.pages
         self.percentage = self._stats.percentage
-        self.notes = notes
-        self._notes = NoteRepresentation(notes)
+        if notes is None:
+            self.notes = []
+        else:
+            self.notes = notes
+        # self._notes = NoteRepresentation(notes)
 
     def to_dict(self):
         """Serialize book to dictionary"""

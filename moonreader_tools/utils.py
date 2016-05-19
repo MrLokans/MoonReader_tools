@@ -27,7 +27,8 @@ def get_moonreader_files(path):
 def get_moonreader_files_from_filelist(file_list):
     """Return sequence of MoonReader statistsics and note files
     in the given file list"""
-    return (f for f in file_list if f.endswith((NOTE_EXTENSION, STAT_EXTENSION)))
+    return (f for f in file_list
+            if f.endswith((NOTE_EXTENSION, STAT_EXTENSION)))
 
 
 def date_from_long_timestamp(str_timestamp):

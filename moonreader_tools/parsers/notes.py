@@ -43,7 +43,8 @@ class MoonReaderNotes(object):
     def from_file_obj(cls, flike_obj, ext):
         """Creates note object from file-like object"""
         if not flike_obj:
-            raise ValueError("No flike object supplied!")
+            return None
+            # raise ValueError("No flike object supplied!")
         content = flike_obj.read()
         if cls._is_zipped(content):
             return cls._from_zipped_string(content, file_type=ext)
