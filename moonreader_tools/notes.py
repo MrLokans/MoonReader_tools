@@ -20,18 +20,18 @@ class AbstractNote(object):
 
     def __init__(self,
                  note_id=0,
-                 note_text="",
-                 note_timestamp=None,
-                 note_color=(),
-                 note_modifier=0b0,
+                 text="",
+                 timestamp=None,
+                 color=(),
+                 modifier=0b0,
                  content=""
                  ):
         self.note_id = note_id
-        self.text = note_text
-        self._timestamp = note_timestamp
+        self.text = text
+        self._timestamp = timestamp
         self._content = content
-        self._color = note_color
-        self.modifier = note_modifier
+        self._color = color
+        self.modifier = modifier
 
     @abc.abstractmethod
     def from_text(self, text):
@@ -79,14 +79,14 @@ class PDFNote(AbstractNote):
 
     SPLITTER_PATTERN = r"#A[0-9@\*]#"
     CORRESP_TABLE = (
-        (0, None),
+        (0, 'unknown_1'),
         (1, "page"),
         (2, "timestamp"),
-        (3, None),
-        (4, None),
+        (3, 'unknown_2'),
+        (4, 'unknown_3'),
         (5, "color"),
         (6, "style"),
-        (7, None),
+        (7, 'unknown_4'),
         (8, "text"),
         (9, None)
     )
@@ -105,10 +105,10 @@ class PDFNote(AbstractNote):
 
     def __init__(self, text, timestamp, style, color, content=""):
         super(PDFNote, self).__init__(note_id=0,
-                                      note_text=text,
-                                      note_timestamp=timestamp,
-                                      note_modifier=style,
-                                      note_color=color,
+                                      text=text,
+                                      timestamp=timestamp,
+                                      modifier=style,
+                                      color=color,
                                       content=content)
 
     @classmethod
@@ -191,16 +191,16 @@ class FB2Note(AbstractNote):
     ]
 
     def __init__(self, note_id,
-                 note_text,
-                 note_timestamp,
-                 note_color,
-                 note_modifier,
+                 text,
+                 timestamp,
+                 color,
+                 modifier,
                  is_deleted=False,
                  content=""):
-        super(FB2Note, self).__init__(note_id, note_text,
-                                      note_timestamp,
-                                      note_color,
-                                      note_modifier,
+        super(FB2Note, self).__init__(note_id, text,
+                                      timestamp,
+                                      color,
+                                      modifier,
                                       content=content)
         self.is_deleted = is_deleted
 
@@ -221,10 +221,10 @@ class FB2Note(AbstractNote):
                 is_deleted = True
             d[item[2]] = str_list[item[0]:item[0] + item[1]]
         return cls(note_id=one_obj_or_list(d["note_id"]),
-                   note_text=one_obj_or_list(d["text"]),
-                   note_timestamp=one_obj_or_list(d["timestamp"]),
-                   note_color=one_obj_or_list(d["color"]),
-                   note_modifier=cls.modifier_from_seq(d["modifier_bits"]),
+                   text=one_obj_or_list(d["text"]),
+                   timestamp=one_obj_or_list(d["timestamp"]),
+                   color=one_obj_or_list(d["color"]),
+                   modifier=cls.modifier_from_seq(d["modifier_bits"]),
                    is_deleted=is_deleted,
                    content="\n".join(str_list))
 
