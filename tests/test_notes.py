@@ -7,6 +7,7 @@ from tests.base import BaseTest, SAMPLE_SHORT_TIMESTAMP
 
 class TestAbstractNotes(unittest.TestCase):
 
+    @unittest.skip("Currently makes no sense")
     def test_str_repr_works(self):
         note_text = "Simple Note"
         note = AbstractNote(note_text=note_text)

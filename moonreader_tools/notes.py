@@ -24,7 +24,9 @@ class AbstractNote(object):
                  timestamp=None,
                  color=(),
                  modifier=0b0,
-                 content=""
+                 content="",
+                 path=None,
+                 path_lower=None
                  ):
         self.note_id = note_id
         self.text = text
@@ -32,6 +34,8 @@ class AbstractNote(object):
         self._content = content
         self._color = color
         self.modifier = modifier
+        self.path = path
+        self.path_lower = path_lower
 
     @abc.abstractmethod
     def from_text(self, text):
@@ -183,11 +187,11 @@ class FB2Note(AbstractNote):
         (5, 1, 'unknown_2'),
         (6, 1, 'unknown_3'),
         (7, 1, 'unknown_4'),
-        (8, 1, "color"),
-        (9, 1, "timestamp"),
+        (8, 1, "color"),  # number, that shows the color styling has
+        (9, 1, "timestamp"),  # integer, that shows when note was made
         (10, 2, "separator_space"),
-        (12, 1, 'text'),
-        (13, 3, 'modifier_bits'),
+        (12, 1, 'text'),  # actually, note's text
+        (13, 3, 'modifier_bits'),  # is note deleted, e.g.
     ]
 
     def __init__(self, note_id,
@@ -196,12 +200,16 @@ class FB2Note(AbstractNote):
                  color,
                  modifier,
                  is_deleted=False,
-                 content=""):
+                 content="",
+                 path=None,
+                 path_lower=None):
         super(FB2Note, self).__init__(note_id, text,
                                       timestamp,
                                       color,
                                       modifier,
-                                      content=content)
+                                      content=content,
+                                      path=path,
+                                      path_lower=path_lower)
         self.is_deleted = is_deleted
 
     @classmethod
@@ -226,7 +234,9 @@ class FB2Note(AbstractNote):
                    color=one_obj_or_list(d["color"]),
                    modifier=cls.modifier_from_seq(d["modifier_bits"]),
                    is_deleted=is_deleted,
-                   content="\n".join(str_list))
+                   content="\n".join(str_list),
+                   path=one_obj_or_list(d['book_path']),
+                   path_lower=one_obj_or_list(d['book_path_lower']))
 
     @staticmethod
     def modifier_from_seq(seq):
@@ -235,6 +245,39 @@ class FB2Note(AbstractNote):
             seq[-1] = 0
         return int("".join((str(x) for x in seq)), base=2)
 
+    @classmethod
+    def _number_to_binary_list(cls, number):
+        """Turns number into list of binary
+        digits from its binary representation.
+        e.g. 4 will turn into ['1', '0', '0'] (0b100)
+        """
+        s_repr = "{:0>3b}".format(number)
+        splitted = [c for c in s_repr]
+        return splitted
+
     def to_string(self):
         """Build string representation used by the e-book reader"""
-        return ""
+        result = ""
+
+        result += "#\n"
+        result += "{}\n".format(self.note_id)
+        result += "{}\n".format(self.text)
+        result += "{}\n".format(self.path)
+        result += "{}\n".format(self.path_lower)
+
+        # Fields with unknown purpose
+        result += "0\n"
+        result += "0\n"
+        result += "0\n"
+        result += "0\n"
+
+        result += self._color + "\n"
+        result += self._timestamp + "\n"
+
+        result += "\n"
+        result += "\n"
+
+        result += self.text + "\n"
+        result += "\n".join(self._number_to_binary_list(self.modifier))
+        print(result)
+        return result

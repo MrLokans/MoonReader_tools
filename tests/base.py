@@ -1,7 +1,7 @@
 import unittest
 
 SAMPLE_SHORT_TIMESTAMP = '1451686942'
-SAMPLE_DATE = SAMPLE_SHORT_TIMESTAMP + '123'  # 1st January 2016 22:22:22
+SAMPLE_TIMESTAMP = SAMPLE_SHORT_TIMESTAMP + '123'  # 1st January 2016 22:22:22
 
 
 class BaseTest(unittest.TestCase):
@@ -13,12 +13,14 @@ indent:false
 trim:false
 """.format(id=id)
 
-    def generate_note_text(self, id=1, text="test", title="test_title"):
+    def generate_note_text(self, id=1, text="test",
+                           path_1="test/test.pdf", path_2="test/test.pdf",
+                           title="test_title"):
         return """\
 {id}
 {title}
-/test/test/test.pdf
-/test/test/test.pdf
+{path_1}
+{path_2}
 0
 0
 0
@@ -77,7 +79,7 @@ Some text 2
 0
 1
 0
-""".format(date=SAMPLE_DATE)
+""".format(date=SAMPLE_TIMESTAMP)
 
-        self.sample_list = ['1', 'Title', 'test.pdf', 'test.pdf', '1', '1', '1', '1', '123123123', SAMPLE_DATE, '', '', 'Some Text', '0', '0', '1']
+        self.sample_list = ['1', 'Title', 'test.pdf', 'test.pdf', '1', '1', '1', '1', '123123123', SAMPLE_TIMESTAMP, '', '', 'Some Text', '0', '0', '1']
         self.deleted_note_list = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '1436185081862', '', '0', '0', '0', '0', '*DELETED*']
