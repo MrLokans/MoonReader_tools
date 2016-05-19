@@ -279,5 +279,4 @@ class FB2Note(AbstractNote):
 
         result += self.text + "\n"
         result += "\n".join(self._number_to_binary_list(self.modifier))
-        print(result)
         return result
