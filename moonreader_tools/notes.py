@@ -91,6 +91,11 @@ class PDFNote(AbstractNote):
         (9, None)
     )
 
+    _DELIMETER_PATTERN = "#A{}#"
+    _HEADER_SEQ = _DELIMETER_PATTERN.format("*")
+    _FOOTER_SEQ = _DELIMETER_PATTERN.format("@")
+    _SECTIONS_COUNT = 7
+
     STYLE_CORRESP = {
         "0": AbstractNote.MARKER,
         "1": AbstractNote.UNDERLINE,
@@ -138,7 +143,31 @@ class PDFNote(AbstractNote):
 
     def to_string(self):
         """Build string representation used by the e-book reader"""
-        return ""
+        result = self._HEADER_SEQ
+        # TODO: rewrite this method to be less hard-coded
+        result += "0"
+
+        result += self._DELIMETER_PATTERN.format(1)
+        result += self._timestamp
+
+        result += self._DELIMETER_PATTERN.format(2)
+        result += "0"
+
+        result += self._DELIMETER_PATTERN.format(3)
+        result += "0"
+
+        result += self._DELIMETER_PATTERN.format(4)
+        result += self._color
+
+        result += self._DELIMETER_PATTERN.format(5)
+        result += str(self.modifier)
+        result += self._DELIMETER_PATTERN.format(6)
+
+        result += self._DELIMETER_PATTERN.format(7)
+        result += self.text
+
+        result += self._FOOTER_SEQ
+        return result
 
 
 class FB2Note(AbstractNote):
