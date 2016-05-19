@@ -259,7 +259,8 @@ class FB2Note(AbstractNote):
         """Build string representation used by the e-book reader"""
         result = ""
 
-        result += "#\n"
+        # TODO: analyze how to treat not delimeters
+        # result += "#\n"
         result += "{}\n".format(self.note_id)
         result += "{}\n".format(self.text)
         result += "{}\n".format(self.path)
