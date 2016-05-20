@@ -69,7 +69,16 @@ class TestStatisticsParser(unittest.TestCase):
         po = Statistics.from_string(self.test_str)
         self.assertEqual(po.percentage, 7.8)
         self.assertEqual(po.pages, 15)
-        self.assertEqual(po.uid, "1392540515970")
+        self.assertEqual(po.timestamp, "1392540515970")
+
+    def test_stat_dumps_to_string_correctly(self):
+        po = Statistics(timestamp="1392540515970", pages=20, percentage=20.3)
+        s = po.to_string()
+
+        dumped = Statistics.from_string(s)
+        self.assertEqual(dumped.percentage, 20.3)
+        self.assertEqual(dumped.pages, 20)
+        self.assertEqual(dumped.timestamp, "1392540515970")
 
     @patch('os.path.exists')
     def test_incorrect_files(self, path_exists_mock):

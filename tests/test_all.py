@@ -29,6 +29,6 @@ if __name__ == '__main__':
         loader.loadTestsFromTestCase(TestPDFNotes),
         loader.loadTestsFromTestCase(TestFB2Notes),
 
-        ))
+    ))
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)

@@ -10,7 +10,7 @@ class Statistics(object):
     """Class responsible for statistics data parsing, storage
 and, in future releases, writing"""
     _statistics_regex = r"""
-(^(?P<uid>[\d]+))           # book id
+(^(?P<timestamp>[\d]+))     # When book was added to the shelf
 (\*(?P<pages>[\d]+))        # total number of pages
 (\@(?P<no1>[\d]+))?         # unknown field 1
 (\#(?P<no2>[\d]+))?         # unknown field 1
@@ -18,8 +18,8 @@ and, in future releases, writing"""
 """
     _compiled_regex = re.compile(_statistics_regex, re.VERBOSE)
 
-    def __init__(self, uid, pages, percentage, **kwargs):
-        self.uid = uid
+    def __init__(self, timestamp, pages, percentage, **kwargs):
+        self.timestamp = timestamp
         self.pages = int(pages)
         self.percentage = float(percentage)
         self._rest = kwargs
@@ -63,4 +63,23 @@ and, in future releases, writing"""
     def is_empty(self):
         """Checks whether the statistics object is with empty
 statistics data."""
-        return self.uid == 0 and self.pages == 0 and self.percentage == 0
+        return self.timestamp == 0 and self.pages == 0 and self.percentage == 0
+
+    def to_string(self):
+        """Creates string representation of the object,
+        ready to be saved into the file"""
+        result = ""
+        result += str(self.timestamp)
+        result += "*"
+
+        result += str(self.pages)
+        result += ":"
+
+        result += str(self.percentage) + "%"
+        return result
+
+    def to_file(self, filepath):
+        """Dumps statistics object to file that
+        can be read by moonreader"""
+        with open(filepath) as f_out:
+            f_out.write(self.to_string())
