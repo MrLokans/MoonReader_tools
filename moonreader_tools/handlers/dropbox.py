@@ -1,3 +1,5 @@
+import logging
+
 import dropbox
 
 from .drobpox_utils import (
@@ -44,7 +46,11 @@ class DropboxDownloader(object):
         dicts = dicts_from_pairs(client, file_pairs, workers=self.workers)
         books_data = []
         for book_dict in dicts:
-            book = Book.from_fobj_dict(book_dict)
-            books_data.append(book)
+            try:
+                book = Book.from_fobj_dict(book_dict)
+                books_data.append(book)
+            except Exception:
+                err_msg = "Exception occured when creating book object."
+                logging.exception(err_msg)
 
         return books_data
