@@ -6,8 +6,8 @@ Module, containing classes used to parse book data from files and string
 import os
 import json
 
-from .stat import Statistics
-from .parsers import MoonReaderNotes
+from moonreader_tools.stat import Statistics
+from moonreader_tools.parsers import MoonReaderNotes
 
 
 class NoteRepresentation(object):
