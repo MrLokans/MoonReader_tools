@@ -1,4 +1,10 @@
-from concurrent.futures import ThreadPoolExecutor
+import logging
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# urllib3 produces noisy exceptions we disable
+log = logging.getLogger('urllib3.connectionpool')
+log.setLevel(logging.CRITICAL)
 
 
 def filepaths_from_metadata(meta):
@@ -6,31 +12,45 @@ def filepaths_from_metadata(meta):
     return [d['path'] for d in meta['contents']]
 
 
-def dicts_from_pairs(client, pairs):
+def dicts_from_pairs(client, pairs, workers=8):
     """This method requires rewriting"""
     dicts = []
+    futures = set()
 
-    for i, pair in enumerate(pairs):
-        with ThreadPoolExecutor(max_workers=6) as executor:
-            executor.submit(handle_download, client, dicts, pair, i)
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        for i, pair in enumerate(pairs):
+            future = executor.submit(get_book_dict, client, pair)
+            futures.add(future)
+        try:
+            for future in as_completed(futures):
+                err = future.exception()
+                if err is None:
+                    dicts.append(future.result())
+                else:
+                    err_msg = "Error occured when obtaining book data: {}"
+                    print(err_msg.format(str(err)))
+        except KeyboardInterrupt:
+            for future in futures:
+                future.cancel()
+            executor.shutdown()
+
     return dicts
 
 
-def handle_download(client, dicts, pair, i):
+def get_book_dict(client, pair):
     """This method requires rewriting"""
-    d = {}
-    print("Obtaining book no {}".format(i))
+    book_files_dict = {}
     if not pair[0]:
         fobj, meta = client.get_file_and_metadata(pair[1])
-        d["stat_file"] = meta['path'], fobj
-        d["note_file"] = '', None
+        book_files_dict["stat_file"] = meta['path'], fobj
+        book_files_dict["note_file"] = '', None
     elif not pair[1]:
         fobj, meta = client.get_file_and_metadata(pair[0])
-        d["note_file"] = meta['path'], fobj
-        d["stat_file"] = '', None
+        book_files_dict["note_file"] = meta['path'], fobj
+        book_files_dict["stat_file"] = '', None
     else:
         f_1, meta_1 = client.get_file_and_metadata(pair[0])
         f_2, meta_2 = client.get_file_and_metadata(pair[1])
-        d["note_file"] = meta_1['path'], f_1
-        d["stat_file"] = meta_2['path'], f_2
-    dicts.append(d)
+        book_files_dict["note_file"] = meta_1['path'], f_1
+        book_files_dict["stat_file"] = meta_2['path'], f_2
+    return book_files_dict

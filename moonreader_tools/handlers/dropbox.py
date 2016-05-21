@@ -16,13 +16,15 @@ class DropboxDownloader(object):
     DEFAULT_DROPBOX_PATH = 'Books/.Moon+/Cache'
 
     def __init__(self, access_token,
-                 books_path=""):
+                 books_path="",
+                 workers=8):
         if not access_token:
             raise ValueError("Access token must be specified.")
         if not books_path:
             books_path = DropboxDownloader.DEFAULT_DROPBOX_PATH
         self.access_token = access_token
         self.books_path = books_path
+        self.workers = workers
 
     def get_books(self, path="", book_count=None):
         """Obtains book objects from dropbox folder"""
@@ -39,7 +41,10 @@ class DropboxDownloader(object):
             file_pairs = get_same_book_files(moonreader_files)[:book_count]
         else:
             file_pairs = get_same_book_files(moonreader_files)
-        dicts = dicts_from_pairs(client, file_pairs)
-        books_data = [Book.from_fobj_dict(d).to_dict()
-                      for d in dicts]
+        dicts = dicts_from_pairs(client, file_pairs, workers=self.workers)
+        books_data = []
+        for book_dict in dicts:
+            book = Book.from_fobj_dict(book_dict)
+            books_data.append(book)
+
         return books_data

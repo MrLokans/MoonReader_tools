@@ -30,10 +30,14 @@ def parse_args():
     parser.add_argument('--dropbox-path',
                         default=DEFAULT_DROPBOX_PATH,
                         help='Token to access your dropbox account')
-    parser.add_argument('--dropbox-number',
-                        default=5,
+    parser.add_argument('--book-count',
+                        default=50,
                         type=int,
                         help='Number of books to get data about from dropbox.')
+    parser.add_argument('--workers',
+                        default=8,
+                        type=int,
+                        help='Number of threads/processes to use.')
     return parser.parse_args()
 
 
@@ -41,8 +45,9 @@ def main():
     args = parse_args()
 
     if args.dropbox_token:
-        handler = DropboxDownloader(access_token=args.dropbox_token)
-        books_data = handler.get_books(book_count=10)
+        handler = DropboxDownloader(access_token=args.dropbox_token,
+                                    workers=args.workers)
+        books_data = handler.get_books(book_count=args.book_count)
         pprint.pprint(books_data)
     if args.path:
 
@@ -63,4 +68,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    finally:
+        log = logging.getLogger('urllib3.connectionpool')
+        log.setLevel(logging.WARNING)
