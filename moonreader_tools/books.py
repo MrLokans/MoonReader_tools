@@ -6,8 +6,13 @@ Module, containing classes used to parse book data from files and string
 import os
 import json
 
+from moonreader_tools.conf import STAT_EXTENSION, NOTE_EXTENSION
 from moonreader_tools.stat import Statistics
 from moonreader_tools.parsers import MoonReaderNotes
+
+
+class BookTypeError(ValueError):
+    pass
 
 
 class NoteRepresentation(object):
@@ -98,30 +103,42 @@ class Book(object):
                    book_notes)
 
     @classmethod
-    def _get_book_type(cls, filename, default_type="", allowed_types=None):
+    def _get_book_type(cls, filename,
+                       default_type="",
+                       allowed_types=None,
+                       extensions=(NOTE_EXTENSION, STAT_EXTENSION)):
         """Extracts book type (pdf, fb2) from extension.
         E.g. given filename my_book.fb2.zip fb2 will be returned"""
         if allowed_types is None:
             allowed_types = cls.ALLOWED_TYPES
         if default_type:
             return default_type
+        if not filename.endswith(extensions):
+            err_msg = "Only files that end with {} are supported"
+            raise BookTypeError(err_msg.format(", ".join(extensions)))
         splitted_title = filename.split(".")
 
-        # Out book file should have at lest to extensions
+        # Out book file should have at least two extensions
         # if default type is not specified
         if len(splitted_title) < 3:
             msg = "Incorrect filename, at least two extensions required: {}"
-            raise ValueError(msg.format(filename))
+            raise BookTypeError(msg.format(filename))
         book_type = splitted_title[-2]
+
+        if book_type not in cls.ALLOWED_TYPES:
+            err_msg = "Unknown file format: {} in file {}"
+            raise BookTypeError(err_msg.format(book_type, filename))
 
         is_zip_ext = book_type == "zip"
         if not is_zip_ext:
             # If not ends with .zip we check only if type is supported
             if book_type not in cls.ALLOWED_TYPES:
-                msg = "Filetype is not supported. Supported types are: {}"
-                raise ValueError(msg.format(", ".join(cls.ALLOWED_TYPES)))
+                msg = "Filetype ({}) is not supported. Supported types are: {}"
+                raise BookTypeError(msg.format(book_type,
+                                               ", ".join(cls.ALLOWED_TYPES)))
         # if it ends with zip we should check whether it has extra extension
         # just before .zip
+
         elif is_zip_ext and len(splitted_title) > 2:
             # if preceding extension is allowed we return it
             allowed_ext = splitted_title[-3].lower() in cls.ALLOWED_TYPES
