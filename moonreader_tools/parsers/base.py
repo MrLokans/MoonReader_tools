@@ -11,11 +11,11 @@ class BaseParser(object):
         pass
 
     @abc.abstractmethod
-    def dump_to_string(self, book):
+    def to_string(self):
         """Dump given book back to the readable string
         (no compression applied)"""
 
     @abc.abstractmethod
-    def dump_to_file_content(self, book):
+    def to_file(self, filepath):
         """Dump given book to the string ready to be
         written in file"""

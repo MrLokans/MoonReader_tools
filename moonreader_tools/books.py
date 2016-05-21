@@ -13,16 +13,25 @@ from .parsers import MoonReaderNotes
 class NoteRepresentation(object):
     """This class wraps note objects and
     provides interface to update every note"""
-    pass
+
+    def __init__(self, notes):
+        self._notes = notes
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return next(self._books)
 
 
 class Book(object):
 
-    def __init__(self, title, stats, notes=None):
+    def __init__(self, title, stats, notes=None, book_type=""):
         self.title = title
         self._stats = stats
         self.pages = self._stats.pages
         self.percentage = self._stats.percentage
+        self.type = book_type
         if notes is None:
             self.notes = []
         else:
@@ -48,9 +57,11 @@ class Book(object):
         stat_file, note_file = tpl
         fname = stat_file if stat_file else note_file
         title = cls._title_from_fname(fname)
+        filename, ext = os.path.splitext(fname)
         return cls(title,
                    Statistics.from_file(note_file),
-                   MoonReaderNotes.from_file(stat_file))
+                   MoonReaderNotes.from_file(stat_file),
+                   book_type=fname)
 
     @classmethod
     def from_fobj_dict(cls, dct):
@@ -100,3 +111,17 @@ class Book(object):
     def empty_book(cls):
         """Construct empty book object"""
         return cls("", None, None)
+
+    def to_notes_string(self):
+        """Dump given book back to the readable string
+        (no compression applied)"""
+
+    def to_notes_file(self, filepath):
+        """Dump given book to the string ready to be
+        written in file"""
+
+    def to_stat_string(self):
+        pass
+
+    def to_stat_file(self, filepah):
+        pass
