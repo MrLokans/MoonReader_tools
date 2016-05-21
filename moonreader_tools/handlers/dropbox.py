@@ -25,6 +25,7 @@ class DropboxDownloader(object):
         self.books_path = books_path
 
     def get_books(self, path="", book_count=None):
+        """Obtains book objects from dropbox folder"""
         if not path and not self.books_path:
             raise ValueError("Path to read data from is not specified")
         if not path:

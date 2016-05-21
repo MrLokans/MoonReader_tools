@@ -70,9 +70,9 @@ class AbstractNote(object):
     def empty(cls):
         return cls(note_id=0,
                    text="",
-                   time=None,
+                   timestamp=None,
                    modifier=0b0,
-                   notes=[])
+                   content="")
 
     def __str__(self):
         return '<Note: {}>'.format(self.text)
@@ -222,21 +222,21 @@ class FB2Note(AbstractNote):
     def from_str_list(cls, str_list):
         """In text file single note is presented as a sequence of lines,
         this method creates Note object from them"""
-        d = {}
+        book_dict = {}
         is_deleted = False
         for item in cls.NOTE_SCHEME:
             if str_list[-1] == NOTE_DELETED:
                 is_deleted = True
-            d[item[2]] = str_list[item[0]:item[0] + item[1]]
-        return cls(note_id=one_obj_or_list(d["note_id"]),
-                   text=one_obj_or_list(d["text"]),
-                   timestamp=one_obj_or_list(d["timestamp"]),
-                   color=one_obj_or_list(d["color"]),
-                   modifier=cls.modifier_from_seq(d["modifier_bits"]),
+            book_dict[item[2]] = str_list[item[0]:item[0] + item[1]]
+        return cls(note_id=one_obj_or_list(book_dict["note_id"]),
+                   text=one_obj_or_list(book_dict["text"]),
+                   timestamp=one_obj_or_list(book_dict["timestamp"]),
+                   color=one_obj_or_list(book_dict["color"]),
+                   modifier=cls.modifier_from_seq(book_dict["modifier_bits"]),
                    is_deleted=is_deleted,
                    content="\n".join(str_list),
-                   path=one_obj_or_list(d['book_path']),
-                   path_lower=one_obj_or_list(d['book_path_lower']))
+                   path=one_obj_or_list(book_dict['book_path']),
+                   path_lower=one_obj_or_list(book_dict['book_path_lower']))
 
     @staticmethod
     def modifier_from_seq(seq):

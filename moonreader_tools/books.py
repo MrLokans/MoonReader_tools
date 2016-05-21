@@ -21,10 +21,20 @@ class NoteRepresentation(object):
         return self
 
     def __next__(self):
-        return next(self._books)
+        return next(self._notes)
+
+    def to_json(self):
+        """Dumps object to json"""
+        pass
+
+    def remove(self, note_number):
+        """Removes note from notes list"""
 
 
 class Book(object):
+    """One of the most important classes in hierarchy
+    Represents generic book object, and hides all of the complexity
+    of parsing, updating and writing to moonreader book files"""
 
     ALLOWED_TYPES = ("epub", "fb2", "pdf", "txt", "zip", "mobi")
 
@@ -56,6 +66,9 @@ class Book(object):
 
     @classmethod
     def from_file_tuple(cls, tpl):
+        """Takes tuple of statistics file path,
+        and notes file path and creates Book object
+        from them"""
         stat_file, note_file = tpl
         fname = stat_file if stat_file else note_file
         title = cls._title_from_fname(fname)
@@ -67,6 +80,14 @@ class Book(object):
 
     @classmethod
     def from_fobj_dict(cls, dct):
+        """Takes a dictionary with note and statistics files
+        paths and file descriptors and builds Book object from them
+        General dict structure is as follows:
+        dict = {
+            "stat_file": ("/my/filename.po", <file_descriptor_1>),
+            "note_file": ("/my/filename.an", <file_descriptor_2>)
+        }
+        """
         fname = dct["stat_file"][0] if dct["stat_file"] else dct["note_file"][0]
         book_ext = cls._get_book_type(fname)
         book_title = cls._title_from_fname(fname)
@@ -158,7 +179,9 @@ class Book(object):
         written in file"""
 
     def to_stat_string(self):
+        """Dumps statistics data to string"""
         pass
 
     def to_stat_file(self, filepah):
+        """Dumps statistics data to file"""
         pass
