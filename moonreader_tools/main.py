@@ -7,17 +7,12 @@ import pprint
 import argparse
 import logging
 
-import dropbox
 
 from .conf import DEFAULT_DROPBOX_PATH, log_format
-from .drobpox_utils import (
-    filepaths_from_metadata,
-    dicts_from_pairs,
-)
 
 from moonreader_tools.books import Book
+from moonreader_tools.handlers import DropboxDownloader
 from moonreader_tools.utils import (
-    get_moonreader_files_from_filelist,
     get_moonreader_files,
     get_same_book_files
 )
@@ -46,16 +41,8 @@ def main():
     args = parse_args()
 
     if args.dropbox_token:
-        client = dropbox.client.DropboxClient(args.dropbox_token)
-        logging.info("Connected to dropbox.")
-        logging.info("Otaining moonreader's dir contents:")
-        meta = client.metadata(args.dropbox_path)
-        files = filepaths_from_metadata(meta)
-        moonreader_files = get_moonreader_files_from_filelist(files)
-        file_pairs = get_same_book_files(moonreader_files)[:args.dropbox_number]
-        dicts = dicts_from_pairs(client, file_pairs)
-        books_data = [Book.from_fobj_dict(d).to_dict()
-                      for d in dicts]
+        handler = DropboxDownloader(access_token=args.dropbox_token)
+        books_data = handler.get_books(book_count=10)
         pprint.pprint(books_data)
     if args.path:
 
