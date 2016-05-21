@@ -16,7 +16,8 @@ from moonreader_tools.conf import NOTE_EXTENSION
 
 class MoonReaderNotes(object):
     """
-    Class, that defines what parsing strategy should be applied for the specified file.
+    Class, that defines what parsing strategy should be applied
+    for the specified file.
     """
 
     PARSE_STATEGIES = {
@@ -73,6 +74,7 @@ class MoonReaderNotes(object):
 
     @classmethod
     def _strategy_from_ext(cls, ext):
+        """Chooses parsing strategies depending on the file extension"""
         strategy = cls.PARSE_STATEGIES.get(ext, None)
         if strategy is None:
             err_msg = "No known parsing startegy for {} format".format(ext)
