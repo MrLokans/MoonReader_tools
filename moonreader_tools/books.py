@@ -26,6 +26,8 @@ class NoteRepresentation(object):
 
 class Book(object):
 
+    ALLOWED_TYPES = ("epub", "fb2", "pdf", "txt", "zip", "mobi")
+
     def __init__(self, title, stats, notes=None, book_type=""):
         self.title = title
         self._stats = stats
@@ -57,24 +59,59 @@ class Book(object):
         stat_file, note_file = tpl
         fname = stat_file if stat_file else note_file
         title = cls._title_from_fname(fname)
-        filename, ext = os.path.splitext(fname)
+        book_type = cls._get_book_type(fname)
         return cls(title,
                    Statistics.from_file(note_file),
                    MoonReaderNotes.from_file(stat_file),
-                   book_type=fname)
+                   book_type=book_type)
 
     @classmethod
     def from_fobj_dict(cls, dct):
         fname = dct["stat_file"][0] if dct["stat_file"] else dct["note_file"][0]
-        book_ext = fname.split('.')[-2]
-        if book_ext == "zip":
-            book_ext = fname.split('.')[-3]
+        book_ext = cls._get_book_type(fname)
         book_title = cls._title_from_fname(fname)
         book_stat = Statistics.from_file_obj(dct["stat_file"][1])
         book_notes = MoonReaderNotes.from_file_obj(dct["note_file"][1], book_ext)
         return cls(book_title,
                    book_stat,
                    book_notes)
+
+    @classmethod
+    def _get_book_type(cls, filename, default_type="", allowed_types=None):
+        """Extracts book type (pdf, fb2) from extension.
+        E.g. given filename my_book.fb2.zip fb2 will be returned"""
+        if allowed_types is None:
+            allowed_types = cls.ALLOWED_TYPES
+        if default_type:
+            return default_type
+        splitted_title = filename.split(".")
+
+        # Out book file should have at lest to extensions
+        # if default type is not specified
+        if len(splitted_title) < 3:
+            msg = "Incorrect filename, at least two extensions required: {}"
+            raise ValueError(msg.format(filename))
+        book_type = splitted_title[-2]
+
+        is_zip_ext = book_type == "zip"
+        if not is_zip_ext:
+            # If not ends with .zip we check only if type is supported
+            if book_type not in cls.ALLOWED_TYPES:
+                msg = "Filetype is not supported. Supported types are: {}"
+                raise ValueError(msg.format(", ".join(cls.ALLOWED_TYPES)))
+        # if it ends with zip we should check whether it has extra extension
+        # just before .zip
+        elif is_zip_ext and len(splitted_title) > 2:
+            # if preceding extension is allowed we return it
+            allowed_ext = splitted_title[-3].lower() in cls.ALLOWED_TYPES
+            if allowed_ext:
+                book_type = splitted_title[-3]
+            else:
+                book_type = "zip"
+        # otherwise it is .zip file
+        else:
+            book_type = "zip"
+        return book_type
 
     def read_stat(self, text="", filename=""):
         """Update reading statistics representation

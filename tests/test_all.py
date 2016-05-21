@@ -11,6 +11,7 @@ from tests.test_parsers import (
     TestGenericParsers
 )
 from tests.test_notes import TestPDFNotes, TestFB2Notes
+from tests.test_books import TestBooks
 
 if __name__ == '__main__':
 
@@ -28,6 +29,8 @@ if __name__ == '__main__':
 
         loader.loadTestsFromTestCase(TestPDFNotes),
         loader.loadTestsFromTestCase(TestFB2Notes),
+
+        loader.loadTestsFromTestCase(TestBooks),
 
     ))
     runner = unittest.TextTestRunner(verbosity=2)
