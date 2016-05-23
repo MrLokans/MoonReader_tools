@@ -1,4 +1,4 @@
-__title__ = 'requests'
+__title__ = 'moonreader_tools'
 __version__ = '0.8.9'
 __author__ = 'MrLokans'
 __license__ = 'MIT'
