@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 version = ""
 
 # I actually took it from requests library
-with open('requests/__init__.py', 'r') as fd:
+with open('moonreader_tools/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
 
@@ -35,7 +35,7 @@ setup(
     classifiers=(
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'License :: OSI Approved :: MIT Software License',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
