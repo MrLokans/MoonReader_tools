@@ -10,13 +10,7 @@ import logging
 
 from .conf import DEFAULT_DROPBOX_PATH, log_format
 
-from moonreader_tools.books import Book
-from moonreader_tools.handlers import DropboxDownloader
-from moonreader_tools.utils import (
-    get_moonreader_files,
-    get_same_book_files
-)
-
+from moonreader_tools.handlers import DropboxDownloader, FilesystemDownloader
 
 logging.basicConfig(format=log_format, filename="moonreader.log")
 
@@ -44,11 +38,18 @@ def parse_args():
 def main():
     args = parse_args()
 
+    # Handle dropbox book data obtaining
     if args.dropbox_token:
         handler = DropboxDownloader(access_token=args.dropbox_token,
                                     workers=args.workers)
-        books_data = handler.get_books(book_count=args.book_count)
-        pprint.pprint(books_data)
+        books = handler.get_books(book_count=args.book_count)
+        book_dict = {"books": [book.to_dict() for book in books]}
+        if args.output_file:
+            with open(args.output_file, "w") as result_f:
+                json.dump(book_dict, result_f, ensure_ascii=False)
+        pprint.pprint(books)
+
+    # Handle local book data obtaining
     if args.path:
 
         if not os.path.exists(args.path):
@@ -56,9 +57,9 @@ def main():
         if not os.path.isdir(args.path):
             raise ValueError("Folder should be specified.")
 
-        moonreader_files = get_moonreader_files(args.path)
-        tuples = get_same_book_files(moonreader_files)
-        books = [Book.from_file_tuple(x) for x in tuples]
+        handler = FilesystemDownloader()
+        books = handler.get_books(path=args.path)
+
         book_dict = {"books": [book.to_dict() for book in books]}
         if args.output_file:
             with open(args.output_file, "w") as result_f:

@@ -125,14 +125,14 @@ class Book(object):
             raise BookTypeError(msg.format(filename))
         book_type = splitted_title[-2]
 
-        if book_type not in cls.ALLOWED_TYPES:
+        if book_type.lower() not in cls.ALLOWED_TYPES:
             err_msg = "Unknown file format: {} in file {}"
             raise BookTypeError(err_msg.format(book_type, filename))
 
         is_zip_ext = book_type == "zip"
         if not is_zip_ext:
             # If not ends with .zip we check only if type is supported
-            if book_type not in cls.ALLOWED_TYPES:
+            if book_type.lower() not in cls.ALLOWED_TYPES:
                 msg = "Filetype ({}) is not supported. Supported types are: {}"
                 raise BookTypeError(msg.format(book_type,
                                                ", ".join(cls.ALLOWED_TYPES)))
