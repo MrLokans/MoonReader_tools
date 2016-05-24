@@ -1,5 +1,5 @@
 __title__ = 'moonreader_tools'
-__version__ = '0.8.9'
+__version__ = '0.9.0'
 __author__ = 'MrLokans'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 MrLokans'
