@@ -1,3 +1,5 @@
+[![Build Status](http://mrlokans.com/jenkins/job/moonreader_tools/badge/icon)](http://mrlokans.com/jenkins/job/moonreader_tools/)
+
 Description - what, why and how
 ===========
 This library allows you to parse and write back Moon+Reader notes and statistics files either local or remote (Dropbox one).
