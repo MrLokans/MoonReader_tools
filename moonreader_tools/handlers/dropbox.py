@@ -19,7 +19,8 @@ class DropboxDownloader(object):
 
     def __init__(self, access_token,
                  books_path="",
-                 workers=8):
+                 workers=8,
+                 logger=None):
         if not access_token:
             raise ValueError("Access token must be specified.")
         if not books_path:
@@ -27,6 +28,7 @@ class DropboxDownloader(object):
         self.access_token = access_token
         self.books_path = books_path
         self.workers = workers
+        self.logger = logger if logger else logging.getLogger(__name__)
 
     def get_books(self, path="", book_count=None):
         """Obtains book objects from dropbox folder"""
@@ -39,18 +41,17 @@ class DropboxDownloader(object):
         meta = client.metadata(path)
         files = filepaths_from_metadata(meta)
         moonreader_files = get_moonreader_files_from_filelist(files)
+
         if book_count is not None:
             file_pairs = get_same_book_files(moonreader_files)[:book_count]
         else:
             file_pairs = get_same_book_files(moonreader_files)
         dicts = dicts_from_pairs(client, file_pairs, workers=self.workers)
-        books_data = []
+
         for book_dict in dicts:
             try:
                 book = Book.from_fobj_dict(book_dict)
-                books_data.append(book)
+                yield book
             except Exception:
                 err_msg = "Exception occured when creating book object."
                 logging.exception(err_msg)
-
-        return books_data

@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 log = logging.getLogger('urllib3.connectionpool')
 log.setLevel(logging.CRITICAL)
 
+logger = logging.getLogger(__name__)
+
 
 def filepaths_from_metadata(meta):
     """Extracts paths from dropbox metadata objects"""
@@ -16,7 +18,6 @@ def dicts_from_pairs(client, pairs, workers=8):
     """This method requires rewriting"""
     dicts = []
     futures = set()
-
     with ThreadPoolExecutor(max_workers=workers) as executor:
         for i, pair in enumerate(pairs):
             future = executor.submit(get_book_dict, client, pair)
@@ -27,8 +28,8 @@ def dicts_from_pairs(client, pairs, workers=8):
                 if err is None:
                     dicts.append(future.result())
                 else:
-                    err_msg = "Error occured when obtaining book data: {}"
-                    print(err_msg.format(str(err)))
+                    err_msg = "Error obtaining book dictionary data: {}"
+                    logger.error(err_msg.format(err))
         except KeyboardInterrupt:
             for future in futures:
                 future.cancel()

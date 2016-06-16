@@ -12,7 +12,7 @@ from .conf import DEFAULT_DROPBOX_PATH, log_format
 
 from moonreader_tools.handlers import DropboxDownloader, FilesystemDownloader
 
-logging.basicConfig(format=log_format, filename="moonreader.log")
+logging.basicConfig(format=log_format, filename="moonreader.log", level=logging.DEBUG)
 
 
 def parse_args():
@@ -43,11 +43,12 @@ def main():
         handler = DropboxDownloader(access_token=args.dropbox_token,
                                     workers=args.workers)
         books = handler.get_books(book_count=args.book_count)
-        book_dict = {"books": [book.to_dict() for book in books]}
+        book_list = [book for book in books]
+        book_dict = {"books": book_list}
         if args.output_file:
             with open(args.output_file, "w") as result_f:
                 json.dump(book_dict, result_f, ensure_ascii=False)
-        pprint.pprint(books)
+        pprint.pprint(book_dict)
 
     # Handle local book data obtaining
     if args.path:
