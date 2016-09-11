@@ -46,9 +46,9 @@ class DropboxDownloader(object):
             file_pairs = get_same_book_files(moonreader_files)[:book_count]
         else:
             file_pairs = get_same_book_files(moonreader_files)
-        dicts = dicts_from_pairs(client, file_pairs, workers=self.workers)
 
-        for book_dict in dicts:
+        for book_dict in dicts_from_pairs(client, file_pairs,
+                                          workers=self.workers):
             try:
                 book = Book.from_fobj_dict(book_dict)
                 yield book

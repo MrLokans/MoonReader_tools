@@ -16,7 +16,6 @@ def filepaths_from_metadata(meta):
 
 def dicts_from_pairs(client, pairs, workers=8):
     """This method requires rewriting"""
-    dicts = []
     futures = set()
     with ThreadPoolExecutor(max_workers=workers) as executor:
         for i, pair in enumerate(pairs):
@@ -26,7 +25,7 @@ def dicts_from_pairs(client, pairs, workers=8):
             for future in as_completed(futures):
                 err = future.exception()
                 if err is None:
-                    dicts.append(future.result())
+                    yield future.result()
                 else:
                     err_msg = "Error obtaining book dictionary data: {}"
                     logger.error(err_msg.format(err))
@@ -34,8 +33,6 @@ def dicts_from_pairs(client, pairs, workers=8):
             for future in futures:
                 future.cancel()
             executor.shutdown()
-
-    return dicts
 
 
 def get_book_dict(client, pair):
