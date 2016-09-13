@@ -21,6 +21,15 @@ class DropboxDownloader(object):
                  books_path="",
                  workers=8,
                  logger=None):
+        """
+
+        :param access_token: Dropbox access token
+        :param books_path: Absolute path to dropbox's \
+        dir with syncronized notes
+        :param workers: number of concurrent workers to download\
+        data from Dropbox
+        :param logger: class responsible for logging
+        """
         if not access_token:
             raise ValueError("Access token must be specified.")
         if not books_path:
@@ -31,7 +40,11 @@ class DropboxDownloader(object):
         self.logger = logger if logger else logging.getLogger(__name__)
 
     def get_books(self, path="", book_count=None):
-        """Obtains book objects from dropbox folder"""
+        """Obtains book objects from dropbox folder
+        :param path: Dropbox directory with syncronized\
+        book data
+        :param book_count: number of books to read
+        """
         if not path and not self.books_path:
             raise ValueError("Path to read data from is not specified")
         if not path:
