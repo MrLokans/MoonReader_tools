@@ -20,8 +20,8 @@ Installation from PyPI
 pip install moonreader_tools
 ```
 
-Usage
-=====
+Usage as CLI utility
+====================
 It is assumed that you're the MoonReader+ Pro user and have Dropbox linked to your reader app.
 If you're reading and creating highlights you'll be having lots of files in the syncronized folder (e.g. Dropbox/Books/.Moon+/Cache)
 
@@ -29,8 +29,29 @@ To get JSON data about all of your books you may use CLI entry to get data from 
 
 ```bash
 moon_tools --path <path/to/moonreader/cache> --output-file <outfile>.json
-```
-```bash
-moon_tools --dropbox-token <DROPBOT TOKEN> --output-file <outfile>.json
 
-To be continued...
+moon_tools --dropbox-token <DROPBOT TOKEN> --output-file <outfile>.json
+```
+
+Usage as library
+================
+```python
+from moonreader_tools.handlers import FilesystemDownloader, DropboxDownloader
+
+# We may look for books in FS directories
+handler = FilesystemDownloader()
+books = handler.get_books(path="/dir/with/moonreader/files")
+for book in books:
+    print(book.title)
+    for note in book.notes:
+        print(note.text)
+
+# And in the dropbox
+handler = DropboxHanlder(access_token='MYSECRETTOKEN',
+                         books_path='moonreader_save_dir')
+books = handler.get_books()
+for book in books:
+    print(book.title)
+    for note in book.notes:
+        print(note.text)
+```
