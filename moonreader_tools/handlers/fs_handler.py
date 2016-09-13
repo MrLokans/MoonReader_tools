@@ -8,7 +8,12 @@ from moonreader_tools.utils import (
 
 
 class FilesystemDownloader(object):
-    """Class to obtain bookdata from dropbox syncronized account"""
+    """Class to obtain books from file system
+    Usage example:
+
+    handler = FilesystemDownloader()
+    books = handler.get_books('/books/path/')
+    """
 
     def __init__(self, books_path=""):
         self.books_path = books_path
@@ -22,12 +27,10 @@ class FilesystemDownloader(object):
 
         moonreader_files = get_moonreader_files(path)
         tuples = get_same_book_files(moonreader_files)
-        books = []
         try:
             for book_files_tuple in tuples:
                 b = Book.from_file_tuple(book_files_tuple)
-                books.append(b)
+                yield b
         except Exception:
             err_msg = "Exception occured when creating book object."
             logging.exception(err_msg)
-        return books
