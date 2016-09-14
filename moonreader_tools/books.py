@@ -187,6 +187,12 @@ class Book(object):
         """Construct empty book object"""
         return cls("", None, None)
 
+    def save(self, notes_file=None, stats_file=None):
+        """Dump book object into corresponding notes and stats file
+        """
+        self.to_notes_file(notes_file)
+        self.to_stat_file(stats_file)
+
     def to_notes_string(self):
         """Dump given book back to the readable string
         (no compression applied)"""
