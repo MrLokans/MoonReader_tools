@@ -44,16 +44,59 @@ class Book(object):
     ALLOWED_TYPES = ("epub", "fb2", "pdf", "txt", "zip", "mobi")
 
     def __init__(self, title, stats, notes=None, book_type=""):
+        """
+        :param title: Book title
+        :type title: str
+        :param stats: Statistics object
+        :type stats: moonreader_tools.stat.Statistics
+        :param notes: list of Note objects
+        :type notes: Iterable[Note]
+        """
         self.title = title
-        self._stats = stats
-        self.pages = self._stats.pages
-        self.percentage = self._stats.percentage
+        self.stats = stats
         self.type = book_type
         if notes is None:
             self.notes = []
         else:
             self.notes = notes
-        # self._notes = NoteRepresentation(notes)
+
+    @property
+    def pages(self):
+        return self.stats.pages
+
+    @pages.setter
+    def pages(self, value):
+        self.stats.pages = value
+
+    @property
+    def notes(self):
+        return self.__notes
+
+    @notes.setter
+    def notes(self, notes_iterable):
+        if isinstance(notes_iterable, NoteRepresentation):
+            self.__notes = notes_iterable
+        else:
+            self.__notes = NoteRepresentation(notes_iterable)
+
+    @property
+    def stats(self):
+        return self.__stats
+
+    @stats.setter
+    def stats(self, stats_obj):
+        if isinstance(stats_obj, dict):
+            self.__stats = Statistics.from_dict(stats_obj)
+        else:
+            self.__stats = stats_obj
+
+    @property
+    def percentage(self):
+        return self.stats.percentage
+
+    @percentage.setter
+    def percentage(self, value):
+        self.stats.percentage = value
 
     def to_dict(self):
         """Serialize book to dictionary"""
