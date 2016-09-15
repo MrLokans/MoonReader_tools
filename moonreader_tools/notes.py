@@ -46,6 +46,11 @@ class AbstractNote(object):
     def time(self):
         return date_from_long_timestamp(self._timestamp)
 
+    @classmethod
+    def from_dict(cls, d):
+        """Construct note object from dictionary"""
+        return cls(**d)
+
     def to_dict(self):
         """Dump note to dictionary"""
         return {
