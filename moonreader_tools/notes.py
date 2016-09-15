@@ -63,10 +63,11 @@ class AbstractNote(object):
         e-book reader"""
         pass
 
-    @abc.abstractmethod
-    def save(self, notes_file=None):
+    def save(self, notes_file):
         """Dumps notes into the file
         """
+        with open(notes_file, "w") as f:
+            f.write(notes_file)
 
     def _color_from_number(self):
         return self._color
