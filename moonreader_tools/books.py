@@ -168,17 +168,12 @@ class Book(object):
             raise BookTypeError(msg.format(filename))
         book_type = splitted_title[-2]
 
-        if book_type.lower() not in cls.ALLOWED_TYPES:
-            err_msg = "Unknown file format: {} in file {}"
-            raise BookTypeError(err_msg.format(book_type, filename))
+        cls.validate_book_ext(book_type)
 
         is_zip_ext = book_type == "zip"
         if not is_zip_ext:
             # If not ends with .zip we check only if type is supported
-            if book_type.lower() not in cls.ALLOWED_TYPES:
-                msg = "Filetype ({}) is not supported. Supported types are: {}"
-                raise BookTypeError(msg.format(book_type,
-                                               ", ".join(cls.ALLOWED_TYPES)))
+            cls.validate_book_ext(book_type)
         # if it ends with zip we should check whether it has extra extension
         # just before .zip
 
@@ -251,3 +246,10 @@ class Book(object):
     def to_stat_file(self, filepah):
         """Dumps statistics data to file"""
         pass
+
+    @classmethod
+    def validate_book_ext(cls, ext):
+        allowed = cls.ALLOWED_TYPES
+        if ext.lower() not in allowed:
+            msg = "Filetype ({}) is not supported. Supported types are: {}"
+            raise BookTypeError(msg.format(ext, ", ".join(allowed)))
