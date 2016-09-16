@@ -15,6 +15,10 @@ class BookTypeError(ValueError):
     pass
 
 
+class ParamTypeError(ValueError):
+    pass
+
+
 class NoteRepresentation(object):
     """This class wraps note objects and
     provides interface to update every note"""
@@ -225,9 +229,22 @@ class Book(object):
         """Construct empty book object"""
         return cls("", None, None)
 
-    def save(self, notes_file=None, stats_file=None):
+    def save(self, path="", notes_file=None, stats_file=None):
         """Dump book object into corresponding notes and stats file
+        :param path: output filename, notes and stats files
+        will be generated automatically from this name
+        :param notes_file: path to the ouput notes file, cannot be used
+        together with the 'path' parameter. Should not include notes file ext
+        :param stats_file: path to the ouput stratistics file, cannot be used
+        together with the 'path' parameter. Should not include stats file ext
         """
+        if path and any((notes_file, stats_file)):
+            msg = """path param cannot be used together\
+             with notes_file or stats_file params"""
+            raise ParamTypeError(msg)
+        if path:
+            notes_file = ".".join([path, NOTE_EXTENSION])
+            stats_file = ".".join([path, STAT_EXTENSION])
         self.to_notes_file(notes_file)
         self.to_stat_file(stats_file)
 

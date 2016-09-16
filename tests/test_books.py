@@ -1,6 +1,6 @@
 import unittest
 
-from moonreader_tools.books import Book, BookTypeError
+from moonreader_tools.books import Book, BookTypeError, ParamTypeError
 
 
 class TestBooks(unittest.TestCase):
@@ -41,6 +41,22 @@ class TestBooks(unittest.TestCase):
         filename = "/test/.tricky_dir/filename.po"
         with self.assertRaises(BookTypeError):
             Book._get_book_type(filename)
+
+    def test_attempting_to_save_book_with_path_and_stats_param_raises_error(self):
+        book = Book("test", None, None)
+        with self.assertRaises(ParamTypeError):
+            book.save(path="test", stats_file="test.po")
+
+    def test_attempting_to_save_book_with_path_and_notes_param_raises_error(self):
+        book = Book("test", None, None)
+        with self.assertRaises(ParamTypeError):
+            book.save(path="test", notes_file="test.an")
+
+    def test_attempting_to_save_book_with_all_paths_params_raises_error(self):
+        book = Book("test", None, None)
+        with self.assertRaises(ParamTypeError):
+            book.save(path="test", notes_file="test.an", stats_file="test.po")
+
 
 if __name__ == '__main__':
     unittest.main()
