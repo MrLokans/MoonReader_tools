@@ -4,6 +4,7 @@ Module contains different methods used across main classes
 
 import os
 import struct
+import time
 import datetime
 
 
@@ -35,6 +36,10 @@ def date_from_long_timestamp(str_timestamp):
     """Moonreader files utilize awkward timestamp version,
     so we trim it and calculate date"""
     return datetime.datetime.fromtimestamp(float(str_timestamp[:10]))
+
+
+def date_to_long_timestamp(d):
+    return int(time.mktime(d.timetuple()))
 
 
 def rgba_hex_from_int(number):
