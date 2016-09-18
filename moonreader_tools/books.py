@@ -19,8 +19,9 @@ class NoteRepresentation(object):
     """This class wraps note objects and
     provides interface to update every note"""
 
-    def __init__(self, notes):
+    def __init__(self, notes, type=None):
         self._notes = notes
+        self._type = type
 
     def __iter__(self):
         return self
@@ -34,6 +35,9 @@ class NoteRepresentation(object):
 
     def remove(self, note_number):
         """Removes note from notes list"""
+
+    def save(self, filename):
+        self._notes.save(filename)
 
 
 class Book(object):
@@ -225,27 +229,28 @@ class Book(object):
         """Construct empty book object"""
         return cls("", None, None)
 
-    def save(self, notes_file=None, stats_file=None):
+    def save(self, notes_file=None, stats_file=None, type="pdf"):
         """Dump book object into corresponding notes and stats file
         """
         self.to_notes_file(notes_file)
         self.to_stat_file(stats_file)
 
-    def to_notes_string(self):
+    def to_notes_string(self, type="pdf"):
         """Dump given book back to the readable string
         (no compression applied)"""
 
-    def to_notes_file(self, filepath):
+    def to_notes_file(self, filepath, type="pdf"):
         """Dump given book to the string ready to be
         written in file"""
+        self.notes.save(filepath)
 
-    def to_stat_string(self):
+    def to_stat_string(self, type="pdf"):
         """Dumps statistics data to string"""
         pass
 
-    def to_stat_file(self, filepah):
+    def to_stat_file(self, filepath, type="pdf"):
         """Dumps statistics data to file"""
-        pass
+        self.stats.save(filepath, type)
 
     @classmethod
     def validate_book_ext(cls, ext):

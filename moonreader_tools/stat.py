@@ -3,6 +3,7 @@ This module contains classes capable of parsing MoonReader's statistics files.
 """
 import re
 import os
+import time
 from .conf import STAT_EXTENSION
 
 
@@ -18,8 +19,11 @@ and, in future releases, writing"""
 """
     _compiled_regex = re.compile(_statistics_regex, re.VERBOSE)
 
-    def __init__(self, timestamp, pages, percentage, **kwargs):
-        self.timestamp = timestamp
+    def __init__(self, timestamp=None, pages=0, percentage=0, **kwargs):
+        if timestamp is None:
+            self.timestamp = int(time.time())
+        else:
+            self.timestamp = timestamp
         self.pages = int(pages)
         self.percentage = float(percentage)
         self._rest = kwargs
@@ -56,6 +60,11 @@ and, in future releases, writing"""
         return cls(**items)
 
     @classmethod
+    def from_dict(cls, d):
+        """Construct note object from dictionary"""
+        return cls(**d)
+
+    @classmethod
     def empty_stats(cls):
         """Returns empty statistics object."""
         return cls(0, 0, 0)
@@ -78,7 +87,7 @@ statistics data."""
         result += str(self.percentage) + "%"
         return result
 
-    def to_file(self, filepath):
+    def save(self, filepath, type="pdf"):
         """Dumps statistics object to file that
         can be read by moonreader"""
         with open(filepath) as f_out:
