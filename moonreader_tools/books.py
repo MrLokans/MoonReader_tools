@@ -5,10 +5,13 @@ Module, containing classes used to parse book data from files and string
 
 import os
 import json
+import itertools
 
 from moonreader_tools.conf import STAT_EXTENSION, NOTE_EXTENSION
 from moonreader_tools.stat import Statistics
+from moonreader_tools.notes import Note
 from moonreader_tools.parsers import MoonReaderNotes
+from moonreader_tools.accessors import accessor_cls_by_type
 
 
 class BookTypeError(ValueError):
@@ -19,31 +22,6 @@ class ParamTypeError(ValueError):
     pass
 
 
-class NoteRepresentation(object):
-    """This class wraps note objects and
-    provides interface to update every note"""
-
-    def __init__(self, notes, type=None):
-        self._notes = notes
-        self._type = type
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return next(self._notes)
-
-    def to_json(self):
-        """Dumps object to json"""
-        pass
-
-    def remove(self, note_number):
-        """Removes note from notes list"""
-
-    def save(self, filename):
-        self._notes.save(filename)
-
-
 class Book(object):
     """One of the most important classes in hierarchy
     Represents generic book object, and hides all of the complexity
@@ -51,7 +29,7 @@ class Book(object):
 
     ALLOWED_TYPES = ("epub", "fb2", "pdf", "txt", "zip", "mobi")
 
-    def __init__(self, title, stats, notes=None, book_type=""):
+    def __init__(self, title, stats=None, notes=None, book_type=""):
         """
         :param title: Book title
         :type title: str
@@ -63,7 +41,11 @@ class Book(object):
         self.title = title
         self.stats = stats
         self.type = book_type
-        if notes is None:
+        if stats is None:
+            self.stats = Statistics.empty_stats()
+        else:
+            self.stats = stats
+        if notes is None or notes is False:
             self.notes = []
         else:
             self.notes = notes
@@ -78,14 +60,24 @@ class Book(object):
 
     @property
     def notes(self):
-        return self.__notes
+        return self._notes
 
     @notes.setter
     def notes(self, notes_iterable):
-        if isinstance(notes_iterable, NoteRepresentation):
-            self.__notes = notes_iterable
+        notes_iterable = iter(notes_iterable)
+        try:
+            note = next(notes_iterable)
+        except StopIteration:
+            self._notes = []
+            return
+        chain = itertools.chain([note], notes_iterable)
+        if isinstance(note, Note):
+            self._notes = list(chain)
+        elif isinstance(note, dict):
+            self._notes = list(map(lambda x: Note.from_dict(x), chain))
         else:
-            self.__notes = NoteRepresentation(notes_iterable)
+            raise TypeError("Unknown object to construct note from:"
+                            " {}".format(type(note)))
 
     @property
     def stats(self):
@@ -259,7 +251,8 @@ class Book(object):
     def to_notes_file(self, filepath, type="pdf"):
         """Dump given book to the string ready to be
         written in file"""
-        self.notes.save(filepath)
+        accessor = accessor_cls_by_type(type)()
+        accessor.notes_to_file(self.notes, filepath)
 
     def to_stat_string(self, type="pdf"):
         """Dumps statistics data to string"""
