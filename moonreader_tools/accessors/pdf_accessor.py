@@ -67,11 +67,11 @@ class PDFAccessor(BaseNoteAccessor):
             f.write(notes_text)
 
     def notes_to_string(self, notes):
-        _id = 0
+        _id = "0"
         notes_text = "".join(self.note_to_string(n) for n in notes)
         return "".join([_id, notes_text])
 
-    def notes_from_text(self, text):
+    def notes_from_string(self, text):
         """Creates PDF note class instance from string"""
         note_texts = self._find_note_text_pieces(text)
         notes = self._notes_from_note_texts(note_texts)
@@ -134,8 +134,8 @@ class PDFAccessor(BaseNoteAccessor):
         result += "0"
 
         result += self._DELIMETER_PATTERN.format(1)
-        timestamp = note.created
-        result += str(date_to_long_timestamp(timestamp))
+        created = note.created
+        result += str(date_to_long_timestamp(created))
 
         result += self._DELIMETER_PATTERN.format(2)
         result += "0"

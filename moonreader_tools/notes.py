@@ -3,9 +3,10 @@
 import re
 import abc
 import json
+import datetime
 
-from .conf import NOTE_DELETED
-from .utils import date_from_long_timestamp, one_obj_or_list
+from moonreader_tools.conf import NOTE_DELETED
+from moonreader_tools.utils import date_from_long_timestamp, one_obj_or_list
 
 
 class Note(object):
@@ -31,7 +32,10 @@ class Note(object):
         """
         self.id = str(note_id)
         self.text = text
-        self.created = created
+        if created is None:
+            self.created = datetime.datetime.now()
+        else:
+            self.created = created
         self.color = color
         self.modifier = modifier
 
