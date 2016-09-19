@@ -8,6 +8,54 @@ from .conf import NOTE_DELETED
 from .utils import date_from_long_timestamp, one_obj_or_list
 
 
+class Note(object):
+
+    CROSSED = 0b010
+    MARKER = 0b0
+    UNDERLINE = 0b100
+    WAVED = 0b001
+
+    def __init__(self, note_id=0, text="", created=None,
+                 color="", modifier=0b0):
+        """Creates note object
+        :param note_id: ID of the note
+        :type note_id: int or str
+        :param text: note's text
+        :type text: str
+        :param created: when note was created
+        :type created: datetime.datetime
+        :param color: note's color
+        :type: ???
+        :param modifier: note's style (crossed, underlined, etc)
+        :type modifier: int
+        """
+        self.id = str(note_id)
+        self.text = text
+        self.created = created
+        self.color = color
+        self.modifier = modifier
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
+
+    def to_dict(self):
+        d = {
+            "id": self.id,
+            "text": self.text,
+            "created": str(self.created),
+            "color": self.color
+        }
+        return d
+
+    def __repr__(self):
+        text = 'Note(id={}, text={}, created={})'
+        return text.format(self.id, self.text, self.created)
+
+    def __str__(self):
+        return self.__repr__()
+
+
 class AbstractNote(object):
     """Abstract class for all other note parsers"""
 
