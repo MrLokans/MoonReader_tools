@@ -1,6 +1,7 @@
 import unittest
 
 from moonreader_tools.books import Book, BookTypeError, ParamTypeError
+from moonreader_tools.notes import Note
 
 
 class TestBooks(unittest.TestCase):
@@ -64,6 +65,18 @@ def test_book_object_stat_is_constructed_from_dict():
     assert book.title == 'title'
     assert book.percentage == 20
     assert book.pages == 10
+
+
+def test_book_object_notes_are_constructed_from_dict():
+    notes_dicts = [{'note_id': 1, 'text': 'text 1'},
+                   {'note_id': 2, 'text': 'text 2'}]
+    book = Book('title', notes=notes_dicts)
+
+    assert len(book.notes) == 2
+    assert book.notes[0].text == 'text 1'
+    assert isinstance(book.notes[0], Note)
+    assert book.notes[1].text == 'text 2'
+    assert isinstance(book.notes[1], Note)
 
 
 if __name__ == '__main__':
