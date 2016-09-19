@@ -1,6 +1,11 @@
+"""
+This module contains class capable of reading
+and writing PDF notes to and from files
+"""
+
 import re
 
-from moonreader_tools.accessors.base_accessor import BaseAccessor
+from moonreader_tools.accessors.base_accessor import BaseNoteAccessor
 from moonreader_tools.notes import Note
 from moonreader_tools.utils import (
     date_from_long_timestamp,
@@ -8,7 +13,7 @@ from moonreader_tools.utils import (
 )
 
 
-class PDFAccessor(BaseAccessor):
+class PDFAccessor(BaseNoteAccessor):
     """Class, responsible for reading and writing notes
     to and from PDF files"""
 
@@ -57,13 +62,16 @@ class PDFAccessor(BaseAccessor):
     def notes_to_file(self, notes, filepath):
         """Dumps a sequence of Note object into the file"""
         # TODO: somehow handle ID variable
-        _id = 0
-        notes_text = "".join(self.note_to_string(n) for n in notes)
+        notes_text = self.notes_to_string(notes)
         with open(filepath, "w") as f:
-            f.write(str(_id))
             f.write(notes_text)
 
-    def from_text(self, text):
+    def notes_to_string(self, notes):
+        _id = 0
+        notes_text = "".join(self.note_to_string(n) for n in notes)
+        return "".join([_id, notes_text])
+
+    def notes_from_text(self, text):
         """Creates PDF note class instance from string"""
         note_texts = self._find_note_text_pieces(text)
         notes = self._notes_from_note_texts(note_texts)
@@ -90,7 +98,7 @@ class PDFAccessor(BaseAccessor):
         """Create note objects from text and return list"""
         return [self.note_from_text(text) for text in note_texts]
 
-    def note_from_text(self, text):
+    def note_from_string(self, text):
         """Create note from text"""
         token_dict = self._dict_from_text(text)
 
