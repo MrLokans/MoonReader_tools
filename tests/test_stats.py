@@ -43,17 +43,7 @@ class TestStatisticsParser(unittest.TestCase):
             Statistics.from_file("")
 
     @patch('os.path.exists')
-    @patch('__builtin__.open', mock_open(), create=True)
-    @unittest.skipIf(int(sys.version[0]) > 2, "For python < 3")
-    def test_empty_stats_return_for_empty_file_p3(self,
-                                                  path_exists_mock):
-        path_exists_mock.return_value = True
-        s = Statistics.from_file("aaaa" + STAT_EXTENSION)
-        self.assertTrue(s.is_empty())
-
-    @unittest.skipIf(int(sys.version[0]) < 3, "For python > 3.0")
-    @patch('os.path.exists')
-    @patch('builtins.open')
+    @patch('io.open')
     def test_empty_stats_return_for_empty_file_p2(self,
                                                   open_mock, path_exists_mock):
         open_mock.read.return_value = ""
@@ -62,20 +52,8 @@ class TestStatisticsParser(unittest.TestCase):
         self.assertTrue(s.is_empty())
 
     @patch('os.path.exists')
-    @patch('__builtin__.open', mock_open(), create=True)
-    @unittest.skipIf(int(sys.version[0]) > 2, "For python < 3")
+    @patch('io.open', mock_open(), create=True)
     def text_correctly_reads_from_file_p3(self, exists_mock, open_mock):
-        open_mock.read.return_value = self.test_str
-        exists_mock.return_value = True
-        s = Statistics.from_file("aa" + STAT_EXTENSION)
-        self.assertEqual(s.percentage, 7.8)
-        self.assertEqual(s.pages, 15)
-        self.assertEqual(s.uid, "1392540515970")
-
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    @unittest.skipIf(int(sys.version[0]) < 3, "For python > 3.0")
-    def text_correctly_reads_from_file_p2(self, exists_mock, open_mock):
         open_mock.read.return_value = self.test_str
         exists_mock.return_value = True
         s = Statistics.from_file("aa" + STAT_EXTENSION)

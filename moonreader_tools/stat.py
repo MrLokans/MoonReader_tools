@@ -4,7 +4,9 @@ This module contains classes capable of parsing MoonReader's statistics files.
 import re
 import os
 import time
-from .conf import STAT_EXTENSION
+import io
+
+from moonreader_tools.conf import STAT_EXTENSION
 
 
 class Statistics(object):
@@ -35,7 +37,7 @@ and, in future releases, writing"""
             raise ValueError("File does not exist: {}".format(file_path))
         assert file_path.endswith(STAT_EXTENSION)
 
-        with open(file_path, encoding="utf-8") as stat_file:
+        with io.open(file_path, encoding="utf-8") as stat_file:
             return cls.from_file_obj(stat_file)
 
     @classmethod
@@ -45,7 +47,6 @@ and, in future releases, writing"""
         if isinstance(content, type(b'bytes')):
             content = content.decode('utf-8')
         if len(content) == 0:
-            print("Statistics is empty.")
             return cls.empty_stats()
         return cls.from_string(content)
 
@@ -90,5 +91,5 @@ statistics data."""
     def save(self, filepath, type="pdf"):
         """Dumps statistics object to file that
         can be read by moonreader"""
-        with open(filepath) as f_out:
+        with open(filepath, "w") as f_out:
             f_out.write(self.to_string())
