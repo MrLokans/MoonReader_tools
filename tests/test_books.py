@@ -58,5 +58,13 @@ class TestBooks(unittest.TestCase):
             book.save(path="test", notes_file="test.an", stats_file="test.po")
 
 
+def test_book_object_stat_is_constructed_from_dict():
+    book = Book('title', stats={'percentage': 20, 'pages': 10})
+
+    assert book.title == 'title'
+    assert book.percentage == 20
+    assert book.pages == 10
+
+
 if __name__ == '__main__':
     unittest.main()
