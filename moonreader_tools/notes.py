@@ -78,16 +78,28 @@ class AbstractNote(object):
                  modifier=0b0,
                  content="",
                  path=None,
-                 path_lower=None
+                 path_lower=None,
+                 title="",
+                 last_chapter=0,
+                 last_split_index=0,
+                 last_position=0,
+                 highlight_length=0,
+                 highlight_color=0,
                  ):
         self.note_id = note_id
         self.text = text
         self._timestamp = timestamp
         self._content = content
         self._color = color
+        self._highlight_color = highlight_color
         self.modifier = modifier
         self.path = path
         self.path_lower = path_lower
+        self.title = title
+        self.last_chapter = last_chapter
+        self.last_split_index = last_split_index
+        self.last_position = last_position
+        self.highlight_length = highlight_length
 
     @abc.abstractmethod
     def from_text(self, text):
