@@ -252,16 +252,18 @@ class PDFNote(AbstractNote):
 class FB2Note(AbstractNote):
     """Class, used to store and parse notes in the FB2 format"""
 
+    POSITION, LEN, NAME = range(3)
+
     NOTE_SCHEME = [
         # position, len, name
         (0, 1, 'note_id'),
         (1, 1, 'title'),
-        (2, 1, 'book_path'),
-        (3, 1, 'book_path_lower'),
-        (4, 1, 'unknown_1'),
-        (5, 1, 'unknown_2'),
-        (6, 1, 'unknown_3'),
-        (7, 1, 'unknown_4'),
+        (2, 1, 'path'),
+        (3, 1, 'path_lower'),
+        (4, 1, 'last_chapter'),
+        (5, 1, 'last_split_index'),
+        (6, 1, 'last_position'),
+        (7, 1, 'highlight_length'),
         (8, 1, "color"),  # number, that shows the color styling has
         (9, 1, "timestamp"),  # integer, that shows when note was made
         (10, 2, "separator_space"),
@@ -269,49 +271,63 @@ class FB2Note(AbstractNote):
         (13, 3, 'modifier_bits'),  # is note deleted, e.g.
     ]
 
-    def __init__(self, note_id,
-                 text,
-                 timestamp,
-                 color,
-                 modifier,
-                 is_deleted=False,
-                 content="",
-                 path=None,
-                 path_lower=None):
-        super(FB2Note, self).__init__(note_id, text,
-                                      timestamp,
-                                      color,
-                                      modifier,
-                                      content=content,
-                                      path=path,
-                                      path_lower=path_lower)
+    def __init__(self, *args, is_deleted: bool=False, **kwargs):
+        super().__init__(*args, **kwargs)
         self.is_deleted = is_deleted
 
     @classmethod
-    def from_text(cls, text):
+    def from_text(cls, text: str) -> AbstractNote:
         """Returns note objects from parsed text"""
         lines = text.splitlines()
         return cls.from_str_list(lines)
 
     @classmethod
-    def from_str_list(cls, str_list):
+    def from_str_list(cls, str_list: list) -> AbstractNote:
         """In text file single note is presented as a sequence of lines,
         this method creates Note object from them"""
         book_dict = {}
-        is_deleted = False
+
+        is_deleted = cls._is_deleted(str_list)
+
         for item in cls.NOTE_SCHEME:
-            if str_list[-1] == NOTE_DELETED:
-                is_deleted = True
-            book_dict[item[2]] = str_list[item[0]:item[0] + item[1]]
-        return cls(note_id=one_obj_or_list(book_dict["note_id"]),
-                   text=one_obj_or_list(book_dict["text"]),
-                   timestamp=one_obj_or_list(book_dict["timestamp"]),
-                   color=one_obj_or_list(book_dict["color"]),
-                   modifier=cls.modifier_from_seq(book_dict["modifier_bits"]),
+            book_dict[item[cls.NAME]] = cls._extract_note_part(item, str_list)
+        d = book_dict
+        return cls(note_id=one_obj_or_list(d["note_id"]),
+                   text=one_obj_or_list(d["text"]),
+                   timestamp=one_obj_or_list(d["timestamp"]),
+                   color=one_obj_or_list(d["color"]),
+                   modifier=cls.modifier_from_seq(d["modifier_bits"]),
                    is_deleted=is_deleted,
                    content="\n".join(str_list),
-                   path=one_obj_or_list(book_dict['book_path']),
-                   path_lower=one_obj_or_list(book_dict['book_path_lower']))
+                   path=one_obj_or_list(d['path']),
+                   path_lower=one_obj_or_list(d['path_lower']),
+                   title=one_obj_or_list(d['title']),
+                   last_chapter=one_obj_or_list(d['last_chapter']),
+                   last_position=one_obj_or_list(d['last_position']),
+                   last_split_index=one_obj_or_list(d['last_split_index']),
+                   highlight_length=one_obj_or_list(d['highlight_length']),
+                   )
+
+    @classmethod
+    def _extract_note_part(cls, item_part, token_list):
+        """
+        Extracts the given part from the note
+        token list
+
+        :param item_part: element from the NOTE_SCHEME
+        :type item_part: tuple
+        :param token_list: list of note tokens
+        """
+        _start = item_part[cls.POSITION]
+        _end = item_part[cls.POSITION] + item_part[cls.LEN]
+        return token_list[_start:_end]
+
+    @classmethod
+    def _is_deleted(cls, token_list):
+        """
+        Tries to find deleted flag
+        """
+        return token_list[-1] == NOTE_DELETED
 
     @staticmethod
     def modifier_from_seq(seq):
@@ -337,15 +353,15 @@ class FB2Note(AbstractNote):
         # TODO: analyze how to treat not delimeters
         # result += "#\n"
         result += "{}\n".format(self.note_id)
-        result += "{}\n".format(self.text)
+        result += "{}\n".format(self.title)
         result += "{}\n".format(self.path)
         result += "{}\n".format(self.path_lower)
 
         # Fields with unknown purpose
-        result += "0\n"
-        result += "0\n"
-        result += "0\n"
-        result += "0\n"
+        result += "{}\n".format(self.last_chapter)
+        result += "{}\n".format(self.last_split_index)
+        result += "{}\n".format(self.last_position)
+        result += "{}\n".format(self.highlight_length)
 
         result += self._color + "\n"
         result += self._timestamp + "\n"
