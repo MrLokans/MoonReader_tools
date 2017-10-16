@@ -45,4 +45,3 @@ class FB2NoteParser(BaseParser):
             if i < splitter_len - 1:
                 notes.append("\n".join(lines[pos + 1:splitter_pos[i + 1]]))
         return notes
-

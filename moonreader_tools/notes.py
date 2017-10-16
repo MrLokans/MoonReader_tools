@@ -79,6 +79,7 @@ class AbstractNote(object):
                  content="",
                  path=None,
                  path_lower=None,
+                 note=None,
                  title="",
                  last_chapter=0,
                  last_split_index=0,
@@ -96,6 +97,7 @@ class AbstractNote(object):
         self.path = path
         self.path_lower = path_lower
         self.title = title
+        self.note = note
         self.last_chapter = last_chapter
         self.last_split_index = last_split_index
         self.last_position = last_position
@@ -119,7 +121,8 @@ class AbstractNote(object):
         """Dump note to dictionary"""
         return {
             'text': self.text,
-            'date': str(date_from_long_timestamp(self._timestamp))
+            'date': str(date_from_long_timestamp(self._timestamp)),
+            'note': self.note,
         }
 
     def to_json(self):
@@ -165,7 +168,7 @@ class PDFNote(AbstractNote):
         (4, 'unknown_3'),
         (5, "color"),
         (6, "style"),
-        (7, 'unknown_4'),
+        (7, "note"),
         (8, "text"),
         (9, None)
     )
@@ -182,12 +185,13 @@ class PDFNote(AbstractNote):
         "3": AbstractNote.WAVED,
     }
 
-    def __init__(self, text, timestamp, style, color, content=""):
+    def __init__(self, text, timestamp, style, color, content="", note=""):
         super(PDFNote, self).__init__(note_id=0,
                                       text=text,
                                       timestamp=timestamp,
                                       modifier=style,
                                       color=color,
+                                      note=note,
                                       content=content)
 
     @classmethod
@@ -201,7 +205,8 @@ class PDFNote(AbstractNote):
                    timestamp=token_dict.get("timestamp", ""),
                    style=style,
                    color=token_dict.get("color", ""),
-                   content=text)
+                   content=text,
+                   note=token_dict.get("note", ""))
 
     @classmethod
     def _dict_from_text(cls, text):
@@ -220,29 +225,36 @@ class PDFNote(AbstractNote):
     def _style_from_num_str(cls, num_str):
         return cls.STYLE_CORRESP[num_str]
 
+    def _get_delimiter(self, c: str) -> str:
+        """
+        Forms the delimiter substring with the given char
+        """
+        return self._DELIMETER_PATTERN.format(c)
+
     def to_string(self):
         """Build string representation used by the e-book reader"""
         result = self._HEADER_SEQ
         # TODO: rewrite this method to be less hard-coded
         result += "0"
 
-        result += self._DELIMETER_PATTERN.format(1)
+        result += self._get_delimiter('1')
         result += self._timestamp
 
-        result += self._DELIMETER_PATTERN.format(2)
+        result += self._get_delimiter('2')
         result += "0"
 
-        result += self._DELIMETER_PATTERN.format(3)
+        result += self._get_delimiter('3')
         result += "0"
 
-        result += self._DELIMETER_PATTERN.format(4)
+        result += self._get_delimiter('4')
         result += self._color
 
-        result += self._DELIMETER_PATTERN.format(5)
+        result += self._get_delimiter('5')
         result += str(self.modifier)
-        result += self._DELIMETER_PATTERN.format(6)
+        result += self._get_delimiter('6')
+        result += self.note
 
-        result += self._DELIMETER_PATTERN.format(7)
+        result += self._get_delimiter('7')
         result += self.text
 
         result += self._FOOTER_SEQ
@@ -267,6 +279,7 @@ class FB2Note(AbstractNote):
         (8, 1, "color"),  # number, that shows the color styling has
         (9, 1, "timestamp"),  # integer, that shows when note was made
         (10, 2, "separator_space"),
+        (11, 1, "note"),
         (12, 1, 'text'),  # actually, note's text
         (13, 3, 'modifier_bits'),  # is note deleted, e.g.
     ]
@@ -301,6 +314,7 @@ class FB2Note(AbstractNote):
                    content="\n".join(str_list),
                    path=one_obj_or_list(d['path']),
                    path_lower=one_obj_or_list(d['path_lower']),
+                   note=one_obj_or_list(d['note']),
                    title=one_obj_or_list(d['title']),
                    last_chapter=one_obj_or_list(d['last_chapter']),
                    last_position=one_obj_or_list(d['last_position']),

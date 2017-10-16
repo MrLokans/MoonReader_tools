@@ -5,11 +5,11 @@ Module, containing classes used to parse book data from files and string
 
 import os
 import json
-import itertools
+from typing import List
 
 from moonreader_tools.conf import STAT_EXTENSION, NOTE_EXTENSION
 from moonreader_tools.stat import Statistics
-from moonreader_tools.notes import Note
+from moonreader_tools.notes import AbstractNote, Note
 from moonreader_tools.parsers import MoonReaderNotes
 from moonreader_tools.accessors import accessor_cls_by_type
 
@@ -29,7 +29,7 @@ class Book(object):
 
     ALLOWED_TYPES = ("epub", "fb2", "pdf", "txt", "zip", "mobi")
 
-    def __init__(self, title, stats=None, notes=None, book_type=""):
+    def __init__(self, title, stats=None, notes: List[Note]=None, book_type=""):
         """
         :param title: Book title
         :type title: str
@@ -41,14 +41,8 @@ class Book(object):
         self.title = title
         self.stats = stats
         self.type = book_type
-        if stats is None:
-            self.stats = Statistics.empty_stats()
-        else:
-            self.stats = stats
-        if notes is None or notes is False:
-            self.notes = []
-        else:
-            self.notes = notes
+        self.stats = stats or Statistics.empty_stats()
+        self.notes = notes or []
 
     @property
     def pages(self):
@@ -60,24 +54,24 @@ class Book(object):
 
     @property
     def notes(self):
-        return self._notes
+        return getattr(self, '_notes', [])
 
     @notes.setter
-    def notes(self, notes_iterable):
-        notes_iterable = iter(notes_iterable)
-        try:
-            note = next(notes_iterable)
-        except StopIteration:
+    def notes(self, notes: List[Note]):
+        notes = list(notes)
+
+        if not notes:
             self._notes = []
             return
-        chain = itertools.chain([note], notes_iterable)
-        if isinstance(note, Note):
-            self._notes = list(chain)
-        elif isinstance(note, dict):
-            self._notes = list(map(lambda x: Note.from_dict(x), chain))
+
+        first_note = notes[0]
+        if isinstance(first_note, (Note, AbstractNote)):
+            self._notes = notes
+        elif isinstance(first_note, dict):
+            self._notes = [Note.from_dict(n) for n in notes]
         else:
             raise TypeError("Unknown object to construct note from:"
-                            " {}".format(type(note)))
+                            " {}".format(type(first_note)))
 
     @property
     def stats(self):
