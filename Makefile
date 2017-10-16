@@ -17,7 +17,7 @@ ci: init
 
 
 publish:
-	python2 setup.py register
-	python2 setup.py sdist upload
-	python2 setup.py bdist_wheel --universal upload 
+	python setup.py register
+	python setup.py sdist upload
+	python setup.py bdist_wheel --universal upload 
 	rm -rf build dist .egg moonreader_tools.egg-info
