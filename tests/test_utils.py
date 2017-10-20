@@ -6,8 +6,16 @@ try:
 except ImportError:
     from mock import patch
 
-from moonreader_tools.utils import (date_from_long_timestamp, get_moonreader_files, one_obj_or_list,
-                                    rgb_string_from_hex, rgba_hex_from_int, get_same_book_files)
+from moonreader_tools.utils import (
+    build_book_color_from_ints,
+    date_from_long_timestamp,
+    get_moonreader_files,
+    one_obj_or_list,
+    rgb_string_from_hex,
+    rgba_hex_from_int,
+    rgba_ints_from_int,
+    get_same_book_files
+)
 
 
 class TestHelperMethods(unittest.TestCase):
@@ -61,7 +69,18 @@ class TestColorExtractingRoutines(unittest.TestCase):
     def test_RGB_bytes_value_correctly_taken_from_positive_number(self):
         blue_color = 255  # 00 00 00 FF
         hexed = rgba_hex_from_int(blue_color)
-        self.assertEqual(hexed, ['0x0', '0x0', '0x0', '0xff'])
+        self.assertEqual(hexed, ('0x0', '0x0', '0x0', '0xff'))
+
+    def test_RGB_int_value_correctly_taken_from_positive_number(self):
+        blue_color = 255  # 00 00 00 FF
+        hexed = rgba_ints_from_int(blue_color)
+        self.assertEqual(hexed, (0, 0, 0, 255))
+
+    def test_builds_correct_number_from_int_tuple(self):
+        expected_number = 255
+        input_ = (0, 0, 0, 255)
+        self.assertEqual(build_book_color_from_ints(input_),
+                         expected_number)
 
 
 if __name__ == '__main__':
