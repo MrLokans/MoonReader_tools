@@ -47,8 +47,10 @@ for book in books:
         print(note.text)
 
 # And in the dropbox
-handler = DropboxHanlder(access_token='MYSECRETTOKEN',
-                         books_path='moonreader_save_dir')
+
+client = dropbox.Dropbox(access_token='MYSECRETTOKEN')
+handler = DropboxDownloader(client, books_path='moonreader_save_dir')
+
 books = handler.get_books()
 for book in books:
     print(book.title)
