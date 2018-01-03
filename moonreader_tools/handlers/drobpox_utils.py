@@ -1,17 +1,18 @@
+import io
 import logging
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # urllib3 produces noisy exceptions we disable
-log = logging.getLogger('urllib3.connectionpool')
-log.setLevel(logging.CRITICAL)
+logging.getLogger('urllib3.connectionpool').setLevel(logging.CRITICAL)
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
-def filepaths_from_metadata(meta):
+def extract_book_paths_from_dir_entries(entries):
     """Extracts paths from dropbox metadata objects"""
-    return [d['path'] for d in meta['contents']]
+    return [entry.path_lower for entry in entries]
 
 
 def dicts_from_pairs(client, pairs, workers=8):
@@ -39,16 +40,16 @@ def get_book_dict(client, pair):
     """This method requires rewriting"""
     book_files_dict = {}
     if not pair[0]:
-        fobj, meta = client.get_file_and_metadata(pair[1])
-        book_files_dict["stat_file"] = meta['path'], fobj
+        metadata, response = client.files_download(pair[1])
+        book_files_dict["stat_file"] = metadata.path_display, io.BytesIO(response.content)
         book_files_dict["note_file"] = '', None
     elif not pair[1]:
-        fobj, meta = client.get_file_and_metadata(pair[0])
-        book_files_dict["note_file"] = meta['path'], fobj
+        metadata, response = client.files_download(pair[0])
+        book_files_dict["note_file"] = metadata.path_display, io.BytesIO(response.content)
         book_files_dict["stat_file"] = '', None
     else:
-        f_1, meta_1 = client.get_file_and_metadata(pair[0])
-        f_2, meta_2 = client.get_file_and_metadata(pair[1])
-        book_files_dict["note_file"] = meta_1['path'], f_1
-        book_files_dict["stat_file"] = meta_2['path'], f_2
+        metadata_0, response_0 = client.files_download(pair[0])
+        metadata_1, response_1 = client.files_download(pair[1])
+        book_files_dict["note_file"] = metadata_0.path_display, io.BytesIO(response_0.content)
+        book_files_dict["stat_file"] = metadata_1.path_display, io.BytesIO(response_1.content)
     return book_files_dict

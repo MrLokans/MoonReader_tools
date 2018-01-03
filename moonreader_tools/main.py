@@ -7,6 +7,7 @@ import pprint
 import argparse
 import logging
 
+import dropbox
 
 from .conf import DEFAULT_DROPBOX_PATH, log_format
 
@@ -40,8 +41,8 @@ def main():
 
     # Handle dropbox book data obtaining
     if args.dropbox_token:
-        handler = DropboxDownloader(access_token=args.dropbox_token,
-                                    workers=args.workers)
+        client = dropbox.Dropbox(args.dropbox_token)
+        handler = DropboxDownloader(client, workers=args.workers)
         books = handler.get_books(book_count=args.book_count)
         book_list = [book for book in books]
         book_dict = {"books": book_list}
@@ -70,8 +71,4 @@ def main():
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    finally:
-        log = logging.getLogger('urllib3.connectionpool')
-        log.setLevel(logging.WARNING)
+    main()
