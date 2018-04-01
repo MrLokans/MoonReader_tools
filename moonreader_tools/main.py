@@ -13,7 +13,15 @@ from .conf import DEFAULT_DROPBOX_PATH, log_format
 
 from moonreader_tools.handlers import DropboxDownloader, FilesystemDownloader
 
-logging.basicConfig(format=log_format, filename="moonreader.log", level=logging.DEBUG)
+
+logging_handlers = [
+    logging.StreamHandler(),
+    logging.FileHandler('moonreader.log')
+]
+
+logging.basicConfig(format=log_format,
+                    handlers=logging_handlers,
+                    level=logging.DEBUG)
 
 
 def parse_args():
@@ -38,7 +46,6 @@ def parse_args():
 
 def main():
     args = parse_args()
-
     # Handle dropbox book data obtaining
     if args.dropbox_token:
         client = dropbox.Dropbox(args.dropbox_token)
