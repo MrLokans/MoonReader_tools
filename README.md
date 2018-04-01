@@ -2,7 +2,8 @@
 
 Description - what, why and how
 ===========
-This library allows you to parse and write back Moon+Reader notes and statistics files either local or remote (Dropbox one).
+This library allows you to get basic data from Moon+Reader notes and statistics files either local or remote (Dropbox support is currently available).
+
 
 [Moon+Reader](https://play.google.com/store/apps/details?id=com.flyersoft.moonreader) is one of the best ebook readers I've tried for Android OS with lots of functionality. The features I use a lot are creating notes when reading books and having them syncronized with my dropbox account. One day I thought that it would be great to write a library for parsing those files and obtaining data from them, as a result this library is being developed. 
 

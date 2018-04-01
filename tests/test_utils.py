@@ -1,21 +1,15 @@
 import os
 import unittest
 
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
+from moonreader_tools.errors import BookTypeError
+
+from unittest.mock import patch
 
 from moonreader_tools.utils import (
-    build_book_color_from_ints,
-    date_from_long_timestamp,
     get_moonreader_files,
     one_obj_or_list,
-    rgb_string_from_hex,
-    rgba_hex_from_int,
-    rgba_ints_from_int,
-    get_same_book_files
-)
+    get_same_book_files,
+    get_book_type)
 
 
 class TestHelperMethods(unittest.TestCase):
@@ -54,33 +48,44 @@ class TestFileRoutines(unittest.TestCase):
         self.assertEqual(pairs, [("test_book_1.an", ""), ("test_book_2.an", "")])
 
 
-class TestColorExtractingRoutines(unittest.TestCase):
+class TestBookType(unittest.TestCase):
 
-    def test_RGB_string_formed_correctly_from_RGBA_sequence(self):
-        seq = ['0xff', '0xbb', '0xcc', '0xfe']
-        s = rgb_string_from_hex(seq)
-        self.assertEqual(s, '#BBCCFE')
+    def test_book_type_correctly_parsed_from_simple_name(self):
+        simple_name = "/test/book.pdf.po"
+        self.assertEqual(get_book_type(simple_name), "pdf")
 
-    def test_RGB_string_formed_correctly_from_RGB_sequence(self):
-        seq = ['0xbb', '0xcc', '0xfe']
-        s = rgb_string_from_hex(seq)
-        self.assertEqual(s, '#BBCCFE')
+    def test_book_type_correctly_parsed_from_name_with_double_zip_ext(self):
+        simple_name = "/test/book.fb2.zip.po"
+        self.assertEqual(get_book_type(simple_name), "fb2")
 
-    def test_RGB_bytes_value_correctly_taken_from_positive_number(self):
-        blue_color = 255  # 00 00 00 FF
-        hexed = rgba_hex_from_int(blue_color)
-        self.assertEqual(hexed, ('0x0', '0x0', '0x0', '0xff'))
+    def test_book_type_correctly_get_from_zip_ext(self):
+        simple_name = "/test/book.zip.po"
+        self.assertEqual(get_book_type(simple_name), "zip")
 
-    def test_RGB_int_value_correctly_taken_from_positive_number(self):
-        blue_color = 255  # 00 00 00 FF
-        hexed = rgba_ints_from_int(blue_color)
-        self.assertEqual(hexed, (0, 0, 0, 255))
+    def test_exception_raised_when_type_is_not_correct(self):
+        simple_name = "/test/book.djvu"
+        with self.assertRaises(BookTypeError):
+            get_book_type(simple_name, allowed_types=("fb2", "pdf"))
 
-    def test_builds_correct_number_from_int_tuple(self):
-        expected_number = 255
-        input_ = (0, 0, 0, 255)
-        self.assertEqual(build_book_color_from_ints(input_),
-                         expected_number)
+    def test_exception_raised_when_parsing_noextname(self):
+        simple_name = "/test/book_with_no_extension"
+        with self.assertRaises(BookTypeError):
+            get_book_type(simple_name, allowed_types=("fb2", "pdf"))
+
+    def test_incorrect_extension_parsing_raises_error(self):
+        filename = "/test/book.ext"
+        with self.assertRaises(BookTypeError):
+            get_book_type(filename, extensions=(".po", ".an"))
+
+    def test_default_type_returned_when_parsing_generic_file(self):
+        simple_name = "/test/tricky_book"
+        book_type = get_book_type(simple_name, default_type="pdf")
+        self.assertEqual(book_type, "pdf")
+
+    def test_incorrect_name_with_dot_in_path_raises_error(self):
+        filename = "/test/.tricky_dir/filename.po"
+        with self.assertRaises(BookTypeError):
+            get_book_type(filename)
 
 
 if __name__ == '__main__':
