@@ -1,9 +1,6 @@
 """
 Module, containing classes used to parse book data from files and string
 """
-
-
-import json
 from typing import List
 
 from moonreader_tools.stat import Statistics
@@ -16,7 +13,7 @@ class Book(object):
     with its statistics and attached notes if any
     """
 
-    def __init__(self, title, stats=None, notes: List[Note]=None, book_type=""):
+    def __init__(self, title, stats=None, notes: List[Note]=None) -> None:
         """
         :param title: Book title
         :param stats: Statistics object
@@ -66,5 +63,3 @@ class Book(object):
 
     def __repr__(self):
         return str(self)
-
-

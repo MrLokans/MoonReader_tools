@@ -80,4 +80,3 @@ class PDFNoteParser(FileReader):
                 continue
             note_dict[item[1]] = note_tokens[item[0]]
         return note_dict
-

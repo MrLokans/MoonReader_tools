@@ -3,7 +3,6 @@ Module contains helper functions used across the library
 """
 
 import os
-import time
 import datetime
 
 

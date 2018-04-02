@@ -1,7 +1,4 @@
 import zlib
-import os
-
-from moonreader_tools.conf import NOTE_EXTENSION
 
 
 class FileReader(object):
@@ -11,7 +8,7 @@ class FileReader(object):
     """
 
     @classmethod
-    def read_file_obj(cls, flike_obj):
+    def read_file_obj(cls, flike_obj) -> str:
         """Creates note object from file-like object"""
         content = flike_obj.read()
         if cls._is_zipped(content):
@@ -23,15 +20,14 @@ class FileReader(object):
         return content
 
     @classmethod
-    def _read_zipped_content(cls, str_content):
+    def _read_zipped_content(cls, str_content) -> bytes:
         """Creates note object from zip-compressed string"""
         if not cls._is_zipped:
             raise ValueError("Given string is not zipped.")
-        unpacked_str = cls._unpack_str(str_content)
-        return unpacked_str
+        return cls._unpack_str(str_content)
 
     @staticmethod
-    def _unpack_str(zipped_str) -> str:
+    def _unpack_str(zipped_str) -> bytes:
         """Decompresses zipped string"""
         return zlib.decompress(zipped_str)
 
