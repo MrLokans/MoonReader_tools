@@ -83,24 +83,3 @@ class TestStatisticsParser(unittest.TestCase):
         path_exists_mock.return_value = True
         s = StatsAccessor.stats_from_file("aaaa" + STAT_EXTENSION)
         self.assertTrue(s.is_empty())
-
-    @unittest.skipIf(int(sys.version[0]) < 3, "For python > 3.0")
-    @patch('os.path.exists')
-    @patch('builtins.open')
-    def test_empty_stats_return_for_empty_file_p2(self,
-                                                  open_mock, path_exists_mock):
-        open_mock.read.return_value = ""
-        path_exists_mock.return_value = True
-        s = StatsAccessor.stats_from_file("aa" + STAT_EXTENSION)
-        self.assertTrue(s.is_empty())
-
-    @patch('os.path.exists')
-    @patch('io.open')
-    @unittest.skipIf(int(sys.version[0]) < 3, "For python > 3.0")
-    def text_correctly_reads_from_file_p2(self, exists_mock, open_mock):
-        open_mock.read.return_value = self.test_str
-        exists_mock.return_value = True
-        s = StatsAccessor.stats_from_file("aa" + STAT_EXTENSION)
-        self.assertEqual(s.percentage, 7.8)
-        self.assertEqual(s.pages, 15)
-        self.assertEqual(s.uid, "1392540515970")

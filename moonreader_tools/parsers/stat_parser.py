@@ -12,18 +12,17 @@ from moonreader_tools.stat import Statistics
 
 
 class StatsAccessor(FileReader):
-    # TODO: rename accessors to parsers
     """
-    Import and export statistics objects
+    Parse statistics file and return proper DTO
     """
-    _STATISTICS_FORMAT_RE = r"""
+    _STATISTICS_FORMAT = r"""
 (^(?P<timestamp>[\d]+))     # When book was added to the shelf
 (\*(?P<pages>[\d]+))        # total number of pages
 (\@(?P<no1>[\d]+))?         # unknown field 1
 (\#(?P<no2>[\d]+))?         # unknown field 1
 (:(?P<percentage>[\d.]+))%  # ratio of already read pages
 """
-    _STATISTICS_FORMAT_RE = re.compile(_STATISTICS_FORMAT_RE, re.VERBOSE)
+    _STATISTICS_FORMAT_RE = re.compile(_STATISTICS_FORMAT, re.VERBOSE)
 
     @classmethod
     def stats_from_string(cls, text: str) -> Statistics:
@@ -34,7 +33,7 @@ class StatsAccessor(FileReader):
         return Statistics(**items)
 
     @classmethod
-    def stats_from_file_obj(cls, flike_obj) -> stats_from_string:
+    def stats_from_file_obj(cls, flike_obj) -> Statistics:
         content = cls.read_file_obj(flike_obj)
         if isinstance(content, type(b'bytes')):
             content = content.decode('utf-8')

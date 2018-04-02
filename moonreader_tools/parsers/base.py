@@ -13,8 +13,8 @@ class BookParser:
     and attempts to read book notes and statistics
     """
 
-    def __init__(self, book_type:str, **kwargs):
-        self._book_name = None
+    def __init__(self, book_type: str, **kwargs) -> None:
+        self._book_name = kwargs.get('book_name', '')
         self._notes_fobj = None
         self._stats_fobj = None
         self._book_type = book_type
@@ -93,7 +93,7 @@ class BookParser:
                          self._book_name)
             return Book(title=self._book_name)
         note_reader = self.get_note_reader_by_type(self._book_type)
-        notes, stats = [], None
+        notes, stats = [], None  # type: ignore
         if self._notes_fobj:
             notes = note_reader.from_file_obj(self._notes_fobj)
         if self._stats_fobj:

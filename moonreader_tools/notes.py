@@ -3,7 +3,6 @@
 from moonreader_tools.utils import date_from_long_timestamp
 
 
-
 class Note(object):
     """
     A simple DTO representing book note in the system
