@@ -51,7 +51,7 @@ def main():
         client = dropbox.Dropbox(args.dropbox_token)
         handler = DropboxDownloader(client, workers=args.workers)
         books = handler.get_books(book_count=args.book_count)
-        book_list = [book for book in books]
+        book_list = [book.to_dict() for book in books]
         book_dict = {"books": book_list}
         if args.output_file:
             with open(args.output_file, "w") as result_f:
