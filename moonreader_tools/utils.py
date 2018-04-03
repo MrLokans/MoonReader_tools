@@ -4,7 +4,8 @@ Module contains helper functions used across the library
 
 import os
 import datetime
-
+import struct
+from typing import Tuple
 
 from .conf import ALLOWED_TYPES, NOTE_EXTENSION, STAT_EXTENSION
 from .errors import BookTypeError
@@ -98,10 +99,31 @@ def get_moonreader_files_from_filelist(file_list):
             if f.endswith((NOTE_EXTENSION, STAT_EXTENSION)))
 
 
-def date_from_long_timestamp(str_timestamp):
+def date_from_long_timestamp(str_timestamp: str) -> datetime.datetime:
     """Moonreader files utilize awkward timestamp version,
     so we trim it and calculate date"""
     return datetime.datetime.fromtimestamp(float(str_timestamp[:10]))
+
+
+def color_tuple_from_overflowed_integer(number: int) -> Tuple[int, int, int, int]:
+    """
+    Internally we get the color stored as the overflowed
+    signed integer, so we put it back into
+    bytes representantion and extract color bytes
+    (Opacity, Red, Green, Blue)
+    """
+    return struct.unpack('BBBB', struct.pack('i', number))  # type: ignore
+
+
+def color_tuple_as_hex_code(color_tuple: Tuple[int, int, int, int]) -> str:
+    """
+    >>> color_tuple_as_hex_code((0, 255, 0, 255))
+    >>> "#FF00FF"
+    """
+    return "#" + "".join(
+        hex(byte_as_int).replace('0x', '')
+        for byte_as_int in color_tuple[-3:]
+    )
 
 
 def get_same_book_files(files):

@@ -2,9 +2,10 @@ import re
 
 from moonreader_tools.accessors.file_reader import FileReader
 from moonreader_tools.notes import Note
+from moonreader_tools.parsers.note_extractor import NoteExtractorMixin
 
 
-class PDFNoteParser(FileReader):
+class PDFNoteParser(FileReader, NoteExtractorMixin):
     # TODO: inherit from the basic object
     """Reads notes from PDF flike object"""
     NOTE_START = "#A*#"
@@ -16,8 +17,8 @@ class PDFNoteParser(FileReader):
         (0, 'unknown_1'),
         (1, "page"),
         (2, "timestamp"),
-        (3, 'unknown_2'),
-        (4, 'unknown_3'),
+        (3, 'unknown_2'),  # Highlight start index?
+        (4, 'unknown_3'),  # Highlight end index?
         (5, "color"),
         (6, "style"),
         (7, "note"),
@@ -63,10 +64,7 @@ class PDFNoteParser(FileReader):
     def single_note_from_text(cls, text) -> Note:
         """Create note from text"""
         token_dict = cls._dict_from_text(text)
-        return Note(
-            text=token_dict.get("text", ""),
-            timestamp=token_dict.get("timestamp")
-        )
+        return cls.note_from_dictionary(token_dict)
 
     @classmethod
     def _dict_from_text(cls, text):
