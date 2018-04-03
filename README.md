@@ -31,7 +31,7 @@ To get JSON data about all of your books you may use CLI entry to get data from 
 ```bash
 moon_tools --path <path/to/moonreader/cache> --output-file <outfile>.json
 
-moon_tools --dropbox-token <DROPBOT TOKEN> --output-file <outfile>.json
+moon_tools --dropbox-token <DROPBOX TOKEN> --output-file <outfile>.json
 ```
 
 Usage as library
