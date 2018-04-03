@@ -24,6 +24,12 @@ class Statistics(object):
     def __str__(self) -> str:
         return self.__repr__()
 
+    def to_dict(self):
+        return {
+            'percentage': self.percentage,
+            'pages': self.pages,
+        }
+
     @classmethod
     def empty_stats(cls):
         """Returns empty statistics object."""

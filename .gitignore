@@ -1,10 +1,11 @@
 *.pyc
 /dist/
 /*.egg-info
-*.an
-*.po
 *.coverage
 *.ipynb_checkpoints
 .tox
 /htmlcov
 build
+.mypy_cache
+.idea
+.pytest_cache

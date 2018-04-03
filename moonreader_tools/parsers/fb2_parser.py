@@ -2,10 +2,10 @@ from typing import List
 
 from moonreader_tools.accessors.file_reader import FileReader
 from moonreader_tools.notes import Note
-from moonreader_tools.utils import one_obj_or_list
+from moonreader_tools.parsers.note_extractor import NoteExtractorMixin
 
 
-class FB2NoteParser(FileReader):
+class FB2NoteParser(FileReader, NoteExtractorMixin):
     # TODO: Inherit from the base class
     """Parser for FB2 book format"""
 
@@ -26,10 +26,10 @@ class FB2NoteParser(FileReader):
         (7, 1, 'highlight_length'),
         (8, 1, "color"),  # number, that shows the color styling has
         (9, 1, "timestamp"),  # integer, that shows when note was made
-        (10, 2, "separator_space"),
+        (10, 1, "separator_space"),
         (11, 1, "note"),
         (12, 1, 'text'),  # actually, note's text
-        (13, 3, 'modifier_bits'),  # is note deleted, e.g.
+        (13, 3, 'style'),  # is note deleted, e.g.
     ]
 
     @classmethod
@@ -61,10 +61,7 @@ class FB2NoteParser(FileReader):
         book_dict = {}
         for item in cls.NOTE_SCHEME:
             book_dict[item[cls.NAME]] = cls._extract_note_part(item, str_list)
-        return Note(
-            text=one_obj_or_list(book_dict['text']),
-            timestamp=one_obj_or_list(book_dict['timestamp'])
-        )
+        return cls.note_from_dictionary(book_dict)
 
     @classmethod
     def _extract_note_part(cls, item_part, token_list):
