@@ -13,7 +13,7 @@ class Book(object):
     with its statistics and attached notes if any
     """
 
-    def __init__(self, title, stats=None, notes: List[Note]=None) -> None:
+    def __init__(self, title, stats=None, notes: List[Note] = None) -> None:
         """
         :param title: Book title
         :param stats: Statistics object
@@ -53,8 +53,8 @@ class Book(object):
         book_dict = {
             "title": self.title,
             "pages": self.pages,
-            'percentage': self.percentage,
-            'notes': [note.to_dict() for note in self.notes]
+            "percentage": self.percentage,
+            "notes": [note.to_dict() for note in self.notes],
         }
         return book_dict
 

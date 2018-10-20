@@ -9,27 +9,27 @@ class FB2NoteParser(FileReader, NoteExtractorMixin):
     # TODO: Inherit from the base class
     """Parser for FB2 book format"""
 
-    NOTE_SPLITTER = '#'
+    NOTE_SPLITTER = "#"
     PARSED_FORMAT = "FB2"
 
     POSITION, LEN, NAME = range(3)
 
     NOTE_SCHEME = [
         # position, len, name
-        (0, 1, 'note_id'),
-        (1, 1, 'title'),
-        (2, 1, 'path'),
-        (3, 1, 'path_lower'),
-        (4, 1, 'last_chapter'),
-        (5, 1, 'last_split_index'),
-        (6, 1, 'last_position'),
-        (7, 1, 'highlight_length'),
+        (0, 1, "note_id"),
+        (1, 1, "title"),
+        (2, 1, "path"),
+        (3, 1, "path_lower"),
+        (4, 1, "last_chapter"),
+        (5, 1, "last_split_index"),
+        (6, 1, "last_position"),
+        (7, 1, "highlight_length"),
         (8, 1, "color"),  # number, that shows the color styling has
         (9, 1, "timestamp"),  # integer, that shows when note was made
         (10, 1, "separator_space"),
         (11, 1, "note"),
-        (12, 1, 'text'),  # actually, note's text
-        (13, 3, 'style'),  # is note deleted, e.g.
+        (12, 1, "text"),  # actually, note's text
+        (13, 3, "style"),  # is note deleted, e.g.
     ]
 
     @classmethod
@@ -41,11 +41,10 @@ class FB2NoteParser(FileReader, NoteExtractorMixin):
         """Creates FB2 note from text"""
         lines = text.splitlines()
         if len(lines) < 3:
-            raise ValueError('Incorrect FB2 notes text')
+            raise ValueError("Incorrect FB2 notes text")
         _, _note_lines = cls.split_note_text(lines)
         text_chunks = cls._note_text_chunks(_note_lines)
-        notes = [cls.single_note_from_text(text_chunk)
-                 for text_chunk in text_chunks]
+        notes = [cls.single_note_from_text(text_chunk) for text_chunk in text_chunks]
         return notes
 
     @classmethod
@@ -99,5 +98,5 @@ class FB2NoteParser(FileReader, NoteExtractorMixin):
         splitter_len = len(splitter_pos)
         for i, pos in enumerate(splitter_pos):
             if i < splitter_len - 1:
-                notes.append("\n".join(lines[pos + 1:splitter_pos[i + 1]]))
+                notes.append("\n".join(lines[pos + 1 : splitter_pos[i + 1]]))
         return notes

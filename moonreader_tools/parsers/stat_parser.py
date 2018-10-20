@@ -15,6 +15,7 @@ class StatsAccessor(FileReader):
     """
     Parse statistics file and return proper DTO
     """
+
     _STATISTICS_FORMAT = r"""
 (^(?P<timestamp>[\d]+))     # When book was added to the shelf
 (\*(?P<pages>[\d]+))        # total number of pages
@@ -35,8 +36,8 @@ class StatsAccessor(FileReader):
     @classmethod
     def stats_from_file_obj(cls, flike_obj) -> Statistics:
         content = cls.read_file_obj(flike_obj)
-        if isinstance(content, type(b'bytes')):
-            content = content.decode('utf-8')
+        if isinstance(content, type(b"bytes")):
+            content = content.decode("utf-8")
         if len(content) == 0:
             return Statistics.empty_stats()
         return cls.stats_from_string(content)

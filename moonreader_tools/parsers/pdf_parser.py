@@ -14,16 +14,16 @@ class PDFNoteParser(FileReader, NoteExtractorMixin):
 
     SPLITTER_PATTERN = r"#A[0-9@\*]#"
     CORRESP_TABLE = (
-        (0, 'unknown_1'),
+        (0, "unknown_1"),
         (1, "page"),
         (2, "timestamp"),
-        (3, 'unknown_2'),  # Highlight start index?
-        (4, 'unknown_3'),  # Highlight end index?
+        (3, "unknown_2"),  # Highlight start index?
+        (4, "unknown_3"),  # Highlight end index?
         (5, "color"),
         (6, "style"),
         (7, "note"),
         (8, "text"),
-        (9, None)
+        (9, None),
     )
 
     @classmethod
@@ -48,11 +48,11 @@ class PDFNoteParser(FileReader, NoteExtractorMixin):
             end_pos = _text.find(cls.NOTE_END)
             if start_pos != -1 and end_pos != -1:
                 note_len = len(cls.NOTE_END)
-                note_text = _text[start_pos:end_pos + note_len]
+                note_text = _text[start_pos : end_pos + note_len]
                 notes.append(note_text)
             else:
                 break
-            _text = _text[end_pos + len(cls.NOTE_END):]
+            _text = _text[end_pos + len(cls.NOTE_END) :]
         return notes
 
     @classmethod

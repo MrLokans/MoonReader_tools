@@ -4,7 +4,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # urllib3 produces noisy exceptions we disable
-logging.getLogger('urllib3.connectionpool').setLevel(logging.CRITICAL)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.CRITICAL)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,15 +41,27 @@ def get_book_dict(client, pair):
     book_files_dict = {}
     if not pair[0]:
         metadata, response = client.files_download(pair[1])
-        book_files_dict["stat_file"] = metadata.path_display, io.BytesIO(response.content)
-        book_files_dict["note_file"] = '', None
+        book_files_dict["stat_file"] = (
+            metadata.path_display,
+            io.BytesIO(response.content),
+        )
+        book_files_dict["note_file"] = "", None
     elif not pair[1]:
         metadata, response = client.files_download(pair[0])
-        book_files_dict["note_file"] = metadata.path_display, io.BytesIO(response.content)
-        book_files_dict["stat_file"] = '', None
+        book_files_dict["note_file"] = (
+            metadata.path_display,
+            io.BytesIO(response.content),
+        )
+        book_files_dict["stat_file"] = "", None
     else:
         metadata_0, response_0 = client.files_download(pair[0])
         metadata_1, response_1 = client.files_download(pair[1])
-        book_files_dict["note_file"] = metadata_0.path_display, io.BytesIO(response_0.content)
-        book_files_dict["stat_file"] = metadata_1.path_display, io.BytesIO(response_1.content)
+        book_files_dict["note_file"] = (
+            metadata_0.path_display,
+            io.BytesIO(response_0.content),
+        )
+        book_files_dict["stat_file"] = (
+            metadata_1.path_display,
+            io.BytesIO(response_1.content),
+        )
     return book_files_dict

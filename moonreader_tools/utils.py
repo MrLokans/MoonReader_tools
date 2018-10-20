@@ -32,10 +32,12 @@ def title_from_fname(fname: str) -> str:
     return fname
 
 
-def get_book_type(filename,
-                  default_type="",
-                  allowed_types=None,
-                  extensions=(NOTE_EXTENSION, STAT_EXTENSION)):
+def get_book_type(
+    filename,
+    default_type="",
+    allowed_types=None,
+    extensions=(NOTE_EXTENSION, STAT_EXTENSION),
+):
     """Extracts book type (pdf, fb2) from extension.
     E.g. given filename my_book.fb2.zip fb2 will be returned"""
     if allowed_types is None:
@@ -43,10 +45,10 @@ def get_book_type(filename,
     if default_type:
         return default_type
     if not filename.endswith(extensions):
-        err_msg = ("Only files that end with {0} are supported. "
-                   "filename provided: '{1}'")
-        raise BookTypeError(err_msg.format(", ".join(extensions),
-                                           filename))
+        err_msg = (
+            "Only files that end with {0} are supported. " "filename provided: '{1}'"
+        )
+        raise BookTypeError(err_msg.format(", ".join(extensions), filename))
     splitted_title = filename.split(".")
 
     # Out book file should have at least two extensions
@@ -95,8 +97,7 @@ def get_moonreader_files(path):
 def get_moonreader_files_from_filelist(file_list):
     """Return sequence of MoonReader statistsics and note files
     in the given file list"""
-    return (f for f in file_list
-            if f.endswith((NOTE_EXTENSION, STAT_EXTENSION)))
+    return (f for f in file_list if f.endswith((NOTE_EXTENSION, STAT_EXTENSION)))
 
 
 def date_from_long_timestamp(str_timestamp: str) -> datetime.datetime:
@@ -112,7 +113,7 @@ def color_tuple_from_overflowed_integer(number: int) -> Tuple[int, int, int, int
     bytes representantion and extract color bytes
     (Opacity, Red, Green, Blue)
     """
-    return struct.unpack('BBBB', struct.pack('i', number))  # type: ignore
+    return struct.unpack("BBBB", struct.pack("i", number))  # type: ignore
 
 
 def color_tuple_as_hex_code(color_tuple: Tuple[int, int, int, int]) -> str:
@@ -121,8 +122,7 @@ def color_tuple_as_hex_code(color_tuple: Tuple[int, int, int, int]) -> str:
     >>> "#FF00FF"
     """
     return "#" + "".join(
-        hex(byte_as_int).replace('0x', '')
-        for byte_as_int in color_tuple[-3:]
+        hex(byte_as_int).replace("0x", "") for byte_as_int in color_tuple[-3:]
     )
 
 

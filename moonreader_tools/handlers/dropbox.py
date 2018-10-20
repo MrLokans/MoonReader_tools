@@ -1,26 +1,21 @@
 import logging
 
 from moonreader_tools.parsers.base import BookParser
-from .drobpox_utils import (
-    extract_book_paths_from_dir_entries,
-    dicts_from_pairs,
-)
+from .drobpox_utils import extract_book_paths_from_dir_entries, dicts_from_pairs
 from moonreader_tools.utils import (
     get_moonreader_files_from_filelist,
     get_same_book_files,
-    title_from_fname, get_book_type
+    title_from_fname,
+    get_book_type,
 )
 
 
 class DropboxDownloader(object):
     """Class to obtain bookdata from dropbox syncronized account"""
-    _DEFAULT_DROPBOX_PATH = '/Apps/Books/.Moon+/Cache'
 
-    def __init__(self,
-                 dropbox_client,
-                 books_path="",
-                 workers=8,
-                 logger=None):
+    _DEFAULT_DROPBOX_PATH = "/Apps/Books/.Moon+/Cache"
+
+    def __init__(self, dropbox_client, books_path="", workers=8, logger=None):
         """
 
         :param dropbox_client: Instantiated dropbox client
@@ -34,7 +29,7 @@ class DropboxDownloader(object):
         self.books_path = books_path or self._DEFAULT_DROPBOX_PATH
         self.workers = workers
 
-    def get_books(self, path: str="", book_count: int=None):
+    def get_books(self, path: str = "", book_count: int = None):
         """Obtains book objects from dropbox folder
         :param path: Dropbox directory with syncronized\
         book data
@@ -53,16 +48,19 @@ class DropboxDownloader(object):
         else:
             file_pairs = get_same_book_files(moonreader_files)
 
-        for book_dict in dicts_from_pairs(self.__dropbox_client, file_pairs,
-                                          workers=self.workers):
+        for book_dict in dicts_from_pairs(
+            self.__dropbox_client, file_pairs, workers=self.workers
+        ):
             try:
-                note_file, stat_file = book_dict['note_file'], book_dict['stat_file']
+                note_file, stat_file = book_dict["note_file"], book_dict["stat_file"]
                 book_name = title_from_fname(note_file[0] or stat_file[0])
                 book_type = get_book_type(note_file[0] or stat_file[0])
                 with BookParser(book_type=book_type) as reader:
-                    reader = reader.set_notes_fobj(note_file[1]) \
-                                   .set_stats_fobj(stat_file[1]) \
-                                   .set_book_name(book_name)
+                    reader = (
+                        reader.set_notes_fobj(note_file[1])
+                        .set_stats_fobj(stat_file[1])
+                        .set_book_name(book_name)
+                    )
                     yield reader.build()
             except Exception:
                 err_msg = "Exception occured when creating book object."

@@ -16,7 +16,7 @@ class FileReader(object):
         else:
             content = content
         if isinstance(content, bytes):
-            content = content.decode('utf-8')
+            content = content.decode("utf-8")
         return content
 
     @classmethod
@@ -36,4 +36,4 @@ class FileReader(object):
         """Checks whether given sequence is compressed with zip"""
         if len(str_text) < 2:
             return False
-        return (str_text[0], str_text[1]) == (int('78', base=16), int('9c', base=16))
+        return (str_text[0], str_text[1]) == (int("78", base=16), int("9c", base=16))

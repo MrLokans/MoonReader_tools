@@ -26,11 +26,14 @@ def test_empty_stats_builds_empty_stats():
     assert empty_stats.percentage == 0
 
 
-@pytest.mark.parametrize("input_combinations", [
-    (0, 0, NON_ZERO_VALUE),
-    (0, NON_ZERO_VALUE, 0),
-    (0, NON_ZERO_VALUE, NON_ZERO_VALUE),
-])
+@pytest.mark.parametrize(
+    "input_combinations",
+    [
+        (0, 0, NON_ZERO_VALUE),
+        (0, NON_ZERO_VALUE, 0),
+        (0, NON_ZERO_VALUE, NON_ZERO_VALUE),
+    ],
+)
 def test_is_empty_returns_true_for_non_zero_values(input_combinations):
 
     stats = Statistics(*input_combinations)

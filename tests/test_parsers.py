@@ -5,10 +5,7 @@ import unittest
 from unittest.mock import patch, mock_open
 
 
-from moonreader_tools.parsers import (
-    PDFNoteParser,
-    FB2NoteParser,
-)
+from moonreader_tools.parsers import PDFNoteParser, FB2NoteParser
 from moonreader_tools.parsers import StatsAccessor
 
 from moonreader_tools.conf import STAT_EXTENSION
@@ -17,7 +14,6 @@ from tests.base import BaseTest
 
 
 class TestPDFParserRoutines(BaseTest):
-
     def test_notes_are_correctly_parsed(self):
         text = "245#A*#8#A1#1451496313379#A2#291#A3#301#A4#-256#A5#0#A6##A7# sample_text_1#A@##A*#9#A1#1451496349963#A2#4#A3#0#A4#-16711936#A5#0#A6##A7# sample_text_2#A@#"
         notes = PDFNoteParser.from_text(text)
@@ -35,12 +31,13 @@ class TestPDFParserRoutines(BaseTest):
 
 
 class TestFB2ParserRoutines(BaseTest):
-
     def test_note_text_correctly_splitted_into_header_and_rest(self):
         header = self.generate_note_header()
         note_text = self.generate_note_text()
         note_content = header + note_text
-        splitted_header, splitted_note_text = FB2NoteParser.split_note_text(note_content.splitlines())
+        splitted_header, splitted_note_text = FB2NoteParser.split_note_text(
+            note_content.splitlines()
+        )
         self.assertEqual(header.splitlines(), splitted_header)
         self.assertEqual(note_text.splitlines(), splitted_note_text)
 
@@ -54,7 +51,6 @@ class TestFB2ParserRoutines(BaseTest):
 
 
 class TestStatisticsParser(unittest.TestCase):
-
     def setUp(self):
         self.test_str = "1392540515970*15@0#6095:7.8%"
 
@@ -64,7 +60,7 @@ class TestStatisticsParser(unittest.TestCase):
         self.assertEqual(po.pages, 15)
         self.assertEqual(po.timestamp, "1392540515970")
 
-    @patch('os.path.exists')
+    @patch("os.path.exists")
     def test_incorrect_files(self, path_exists_mock):
         path_exists_mock.return_value = True
         fname = "noextensionfile"
@@ -75,11 +71,10 @@ class TestStatisticsParser(unittest.TestCase):
         with self.assertRaises(ValueError):
             StatsAccessor.stats_from_file("")
 
-    @patch('os.path.exists')
-    @patch('__builtin__.open', mock_open(), create=True)
+    @patch("os.path.exists")
+    @patch("__builtin__.open", mock_open(), create=True)
     @unittest.skipIf(int(sys.version[0]) > 2, "For python < 3")
-    def test_empty_stats_return_for_empty_file_p3(self,
-                                                  path_exists_mock):
+    def test_empty_stats_return_for_empty_file_p3(self, path_exists_mock):
         path_exists_mock.return_value = True
         s = StatsAccessor.stats_from_file("aaaa" + STAT_EXTENSION)
         self.assertTrue(s.is_empty())

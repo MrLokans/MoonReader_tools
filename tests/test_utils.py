@@ -9,11 +9,11 @@ from moonreader_tools.utils import (
     get_moonreader_files,
     one_obj_or_list,
     get_same_book_files,
-    get_book_type)
+    get_book_type,
+)
 
 
 class TestHelperMethods(unittest.TestCase):
-
     def test_one_or_list_returns_list_for_list_of_many_objects(self):
         l = [1, 2]
         self.assertEqual(one_obj_or_list(l), [1, 2])
@@ -24,18 +24,33 @@ class TestHelperMethods(unittest.TestCase):
 
 
 class TestFileRoutines(unittest.TestCase):
-
-    @patch('moonreader_tools.utils.os.listdir')
+    @patch("moonreader_tools.utils.os.listdir")
     def test_correct_files_taken(self, patched_listdir):
         dir_name = "test"
-        patched_listdir.return_value = ["test.an", "test.po", "..", ".", "unused_file.file", "no_ext_file"]
+        patched_listdir.return_value = [
+            "test.an",
+            "test.po",
+            "..",
+            ".",
+            "unused_file.file",
+            "no_ext_file",
+        ]
         files = get_moonreader_files(dir_name)
-        self.assertEqual(list(sorted(files)), [os.path.join(dir_name, "test.an"), os.path.join(dir_name, "test.po")])
+        self.assertEqual(
+            list(sorted(files)),
+            [os.path.join(dir_name, "test.an"), os.path.join(dir_name, "test.po")],
+        )
 
     def test_full_pairs_taken_correctly(self):
         files = ["test_book_1.po", "test_book_2.an", "test_book_2.po", "test_book_1.an"]
         pairs = get_same_book_files(files)
-        self.assertEqual(pairs, [("test_book_1.an", "test_book_1.po"), ("test_book_2.an", "test_book_2.po")])
+        self.assertEqual(
+            pairs,
+            [
+                ("test_book_1.an", "test_book_1.po"),
+                ("test_book_2.an", "test_book_2.po"),
+            ],
+        )
 
     def test_pairs_are_correctly_made_with_only_stat_file(self):
         files = ["test_book_1.po", "test_book_2.po"]
@@ -49,7 +64,6 @@ class TestFileRoutines(unittest.TestCase):
 
 
 class TestBookType(unittest.TestCase):
-
     def test_book_type_correctly_parsed_from_simple_name(self):
         simple_name = "/test/book.pdf.po"
         self.assertEqual(get_book_type(simple_name), "pdf")
@@ -88,5 +102,5 @@ class TestBookType(unittest.TestCase):
             get_book_type(filename)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

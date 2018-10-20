@@ -2,7 +2,7 @@ from moonreader_tools.books import Book
 
 
 def test_book_is_properly_constructed_with_defaults():
-    test_book_title = 'My cool book'
+    test_book_title = "My cool book"
     book = Book(test_book_title)
 
     assert book.title == test_book_title
