@@ -23,6 +23,12 @@ fixture_valid_pdf_stats_path = os.path.join(FIXTURE_DIR, 'How_Linux_Works.pdf.po
 
 fixture_valid_fb2_notes_path = os.path.join(FIXTURE_DIR, 'Do_Smerti_Zdorov.fb2.an')
 fixture_valid_fb2_stats_path = os.path.join(FIXTURE_DIR, 'Do_Smerti_Zdorov.fb2.po')
+fixture_valid_fb2_with_manual_note_notes_path = os.path.join(
+    FIXTURE_DIR, "Brinkman_S._Konec_Yepohi_Self_Help_Ka.fb2.zip.an"
+)
+fixture_valid_fb2_with_manual_note_stats_path = os.path.join(
+    FIXTURE_DIR, "Brinkman_S._Konec_Yepohi_Self_Help_Ka.fb2.zip.po"
+)
 
 
 def test_reading_valid_pdf_book_with_stats_and_notes():
@@ -51,3 +57,15 @@ def test_reading_valid_fb2_book_with_stats_and_notes():
         assert len(book.notes) == 20
         assert book.notes[0].text[:30] == "Наверное, нужно было сказать п"
         assert book.notes[-1].text[:30] == "Поэтому Уонсик советует «делат"
+
+
+def test_reading_valid_fb2_book_with_bookmark_and_manual_note():
+    with BookParser.from_files(
+        fixture_valid_fb2_with_manual_note_notes_path,
+        fixture_valid_fb2_with_manual_note_stats_path,
+    ) as reader:
+        book = reader.build()
+        assert len(book.notes) > 2
+        book_note_with_mark = book.notes[2]
+
+        assert book_note_with_mark.note[:30] == "автор пытается сказать или нам"

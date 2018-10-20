@@ -1,5 +1,5 @@
-__title__ = 'moonreader_tools'
-__version__ = '1.1.0'
-__author__ = 'MrLokans'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2018 MrLokans'
+__title__ = "moonreader_tools"
+__version__ = "1.2.0"
+__author__ = "MrLokans"
+__license__ = "MIT"
+__copyright__ = "Copyright 2018 MrLokans"
