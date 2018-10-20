@@ -4,7 +4,6 @@ from typing import Tuple
 from moonreader_tools import utils
 from moonreader_tools.notes import Note, NoteStyle
 
-
 DELETED_MARKER = "*DELETED*"
 
 

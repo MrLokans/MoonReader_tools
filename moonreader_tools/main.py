@@ -1,18 +1,17 @@
 """
 This file contains entry poin for the CLI.
 """
-import os
-import json
-import pprint
 import argparse
+import json
 import logging
+import os
+import pprint
 
 import dropbox
 
-from .conf import DEFAULT_DROPBOX_PATH, log_format
-
 from moonreader_tools.handlers import DropboxDownloader, FilesystemDownloader
 
+from .conf import DEFAULT_DROPBOX_PATH, log_format
 
 logging_handlers = [logging.StreamHandler(), logging.FileHandler("moonreader.log")]
 

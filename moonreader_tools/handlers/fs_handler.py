@@ -2,9 +2,9 @@ import logging
 
 from moonreader_tools.parsers.base import BookParser
 from moonreader_tools.utils import (
+    get_book_type,
     get_moonreader_files,
     get_same_book_files,
-    get_book_type,
     title_from_fname,
 )
 

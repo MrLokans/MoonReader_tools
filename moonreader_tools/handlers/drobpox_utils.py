@@ -1,6 +1,5 @@
 import io
 import logging
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # urllib3 produces noisy exceptions we disable

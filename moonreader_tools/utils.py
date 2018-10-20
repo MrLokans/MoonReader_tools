@@ -2,8 +2,8 @@
 Module contains helper functions used across the library
 """
 
-import os
 import datetime
+import os
 import struct
 from typing import Tuple
 

@@ -1,13 +1,14 @@
 import logging
 
 from moonreader_tools.parsers.base import BookParser
-from .drobpox_utils import extract_book_paths_from_dir_entries, dicts_from_pairs
 from moonreader_tools.utils import (
+    get_book_type,
     get_moonreader_files_from_filelist,
     get_same_book_files,
     title_from_fname,
-    get_book_type,
 )
+
+from .drobpox_utils import dicts_from_pairs, extract_book_paths_from_dir_entries
 
 
 class DropboxDownloader(object):

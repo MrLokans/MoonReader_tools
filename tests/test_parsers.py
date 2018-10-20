@@ -1,15 +1,9 @@
 import sys
 import unittest
-
-
-from unittest.mock import patch, mock_open
-
-
-from moonreader_tools.parsers import PDFNoteParser, FB2NoteParser
-from moonreader_tools.parsers import StatsAccessor
+from unittest.mock import mock_open, patch
 
 from moonreader_tools.conf import STAT_EXTENSION
-
+from moonreader_tools.parsers import FB2NoteParser, PDFNoteParser, StatsAccessor
 from tests.base import BaseTest
 
 

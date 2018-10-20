@@ -1,15 +1,13 @@
 import os
 import unittest
-
-from moonreader_tools.errors import BookTypeError
-
 from unittest.mock import patch
 
+from moonreader_tools.errors import BookTypeError
 from moonreader_tools.utils import (
-    get_moonreader_files,
-    one_obj_or_list,
-    get_same_book_files,
     get_book_type,
+    get_moonreader_files,
+    get_same_book_files,
+    one_obj_or_list,
 )
 
 

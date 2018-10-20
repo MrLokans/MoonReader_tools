@@ -3,8 +3,8 @@ Module, containing classes used to parse book data from files and string
 """
 from typing import List
 
-from moonreader_tools.stat import Statistics
 from moonreader_tools.notes import Note
+from moonreader_tools.stat import Statistics
 
 
 class Book(object):

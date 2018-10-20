@@ -1,8 +1,8 @@
 import logging
 
 from moonreader_tools.books import Book
-from moonreader_tools.parsers import PDFNoteParser, FB2NoteParser, StatsAccessor
-from moonreader_tools.utils import title_from_fname, get_book_type
+from moonreader_tools.parsers import FB2NoteParser, PDFNoteParser, StatsAccessor
+from moonreader_tools.utils import get_book_type, title_from_fname
 
 logger = logging.getLogger()
 

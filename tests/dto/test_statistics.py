@@ -2,7 +2,6 @@ import pytest
 
 from moonreader_tools.stat import Statistics
 
-
 NON_ZERO_VALUE = 2
 
 
