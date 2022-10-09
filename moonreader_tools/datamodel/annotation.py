@@ -1,4 +1,3 @@
-"""Collection of classes that present different book formats' notes"""
 import datetime
 import enum
 from typing import Tuple
@@ -16,7 +15,7 @@ class NoteStyle(enum.Enum):
     DELETED = "DELETED"
 
 
-class Note(object):
+class Note:
     """
     A simple DTO representing book note in the system
     """

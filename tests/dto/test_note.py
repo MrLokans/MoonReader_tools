@@ -1,6 +1,6 @@
 import datetime
 
-from moonreader_tools.notes import Note, NoteStyle
+from moonreader_tools.datamodel.annotation import NoteStyle, Note
 
 
 def test_valid_defaults_for_note():

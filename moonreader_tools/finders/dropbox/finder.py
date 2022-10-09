@@ -1,18 +1,20 @@
 import logging
 
+from moonreader_tools.finders.dropbox.utils import (
+    extract_book_paths_from_dir_entries,
+    dicts_from_pairs,
+)
 from moonreader_tools.parsers.base import BookParser
 from moonreader_tools.utils import (
-    get_book_type,
     get_moonreader_files_from_filelist,
     get_same_book_files,
     title_from_fname,
+    get_book_type,
 )
 
-from .drobpox_utils import dicts_from_pairs, extract_book_paths_from_dir_entries
 
-
-class DropboxDownloader(object):
-    """Class to obtain bookdata from dropbox syncronized account"""
+class DropboxFinder:
+    """Class to obtain book data from the dropbox account"""
 
     _DEFAULT_DROPBOX_PATH = "/Apps/Books/.Moon+/Cache"
 

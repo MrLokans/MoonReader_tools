@@ -1,6 +1,6 @@
 import logging
 
-from moonreader_tools.books import Book
+from moonreader_tools.datamodel.book import Book
 from moonreader_tools.parsers import FB2NoteParser, PDFNoteParser, StatsAccessor
 from moonreader_tools.utils import get_book_type, title_from_fname
 
@@ -82,8 +82,7 @@ class BookParser:
             raise ValueError("Unknown book type: %s", book_type)
 
     def build(self) -> "Book":
-        """Constructs actual book instance
-        """
+        """Constructs actual book instance"""
         if not all([self._stats_fobj, self._notes_fobj]):
             logger.error(
                 "Both stats file and notes file are not set for book %s.",

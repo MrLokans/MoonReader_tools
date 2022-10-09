@@ -1,11 +1,15 @@
-"""
-Representation of the moon reader's statistics object.
-"""
 import time
+from typing import Optional
 
 
-class Statistics(object):
-    def __init__(self, timestamp=None, pages=0, percentage=0, **kwargs):
+class Statistics:
+    def __init__(
+        self,
+        timestamp: Optional[int] = None,
+        pages: int = 0,
+        percentage: int = 0,
+        **kwargs
+    ):
         if timestamp is None:
             self.timestamp = int(time.time())
         else:

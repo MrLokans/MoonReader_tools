@@ -5,13 +5,13 @@ Module contains helper functions used across the library
 import datetime
 import os
 import struct
-from typing import Tuple
+from typing import Tuple, Iterable, Union, List, Any
 
 from .conf import ALLOWED_TYPES, NOTE_EXTENSION, STAT_EXTENSION
 from .errors import BookTypeError
 
 
-def validate_book_ext(ext):
+def validate_book_ext(ext: str) -> None:
     allowed = ALLOWED_TYPES
     if ext.lower() not in allowed:
         msg = "Filetype ({}) is not supported. Supported types are: {}"
@@ -37,7 +37,7 @@ def get_book_type(
     default_type="",
     allowed_types=None,
     extensions=(NOTE_EXTENSION, STAT_EXTENSION),
-):
+) -> str:
     """Extracts book type (pdf, fb2) from extension.
     E.g. given filename my_book.fb2.zip fb2 will be returned"""
     if allowed_types is None:
@@ -80,21 +80,21 @@ def get_book_type(
     return book_type
 
 
-def one_obj_or_list(seq):
+def one_obj_or_list(seq: List[Any]) -> Union[List[Any], Any]:
     """If there is one object in list - return object, otherwise return list"""
     if len(seq) == 1:
         return seq[0]
     return seq
 
 
-def get_moonreader_files(path):
+def get_moonreader_files(path: str) -> Iterable[str]:
     """Return sequence of MoonReader statistsics and note files
     in the given path"""
     files = (os.path.join(path, component) for component in os.listdir(path))
     return get_moonreader_files_from_filelist(files)
 
 
-def get_moonreader_files_from_filelist(file_list):
+def get_moonreader_files_from_filelist(file_list: Iterable[str]) -> Iterable[str]:
     """Return sequence of MoonReader statistsics and note files
     in the given file list"""
     return (f for f in file_list if f.endswith((NOTE_EXTENSION, STAT_EXTENSION)))
@@ -126,7 +126,7 @@ def color_tuple_as_hex_code(color_tuple: Tuple[int, int, int, int]) -> str:
     )
 
 
-def get_same_book_files(files):
+def get_same_book_files(files: Iterable[str]) -> List[Tuple[str, str]]:
     """Returns pairs of files that belong to the same book"""
     pairs = []
     files = list(files)

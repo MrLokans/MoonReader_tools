@@ -1,3 +1,9 @@
+2.0.0
+---
+Migration to poetry.
+Project structure refactoring.
+Dependency upgrade.
+
 1.1.0
 ---
 Added the support of "note", "style" and "color" fields removed earlier

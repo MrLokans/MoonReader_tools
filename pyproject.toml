@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "moonreader_tools"
+version = "2.0.0"
+description = "Library allowing to work with MoonReader book formats."
+readme = "README.md"
+authors = ["MrLokans <mrlokans@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/MrLokans/MoonReader_tools"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+dropbox = "<12.0"
+
+[tool.poetry.dev-dependencies]
+black = "<23"
+mypy = "0.982"
+flake8 = "<6.0"
+pytest = "<8"
+pytest-cov = "<5"
+
+[tool.poetry.scripts]
+moon_tools = 'moonreader_tools.main:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

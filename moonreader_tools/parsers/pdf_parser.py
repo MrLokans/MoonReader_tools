@@ -1,7 +1,7 @@
 import re
 
-from moonreader_tools.accessors.file_reader import FileReader
-from moonreader_tools.notes import Note
+from moonreader_tools.parsers.file_reader import FileReader
+from moonreader_tools.datamodel.annotation import Note
 from moonreader_tools.parsers.note_extractor import NoteExtractorMixin
 
 

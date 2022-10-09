@@ -1,6 +1,6 @@
 import pytest
 
-from moonreader_tools.stat import Statistics
+from moonreader_tools.datamodel.statistics import Statistics
 
 NON_ZERO_VALUE = 2
 

@@ -1,4 +1,4 @@
-from moonreader_tools.books import Book
+from moonreader_tools.datamodel.book import Book
 
 
 def test_book_is_properly_constructed_with_defaults():

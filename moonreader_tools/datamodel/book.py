@@ -1,15 +1,12 @@
-"""
-Module, containing classes used to parse book data from files and string
-"""
 from typing import List
 
-from moonreader_tools.notes import Note
-from moonreader_tools.stat import Statistics
+from moonreader_tools.datamodel.annotation import Note
+from moonreader_tools.datamodel.statistics import Statistics
 
 
-class Book(object):
+class Book:
     """
-    Simple DTO representing a book in the system,
+    Simple objects representing a MoonReader app book,
     with its statistics and attached notes if any
     """
 

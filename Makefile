@@ -5,22 +5,19 @@ init:
 	pip install -r requirements.txt
 
 format:
-	black .
+	poetry run black .
 
 test:
 	# This runs all of the tests. To run an individual test, run py.test with
 	# the -k flag, like "py.test -k test_path_is_not_double_encoded"
-	py.test tests
+	poetry run pytest tests
+
+lint:
+	poetry run flake8 moonreader_tools
 
 coverage:
-	py.test --verbose --cov-report term --cov=moonreader_tools tests
-
-ci: init
-	py.test --junitxml=junit.xml
-
+	poetry run pytest --verbose --cov-report term --cov=moonreader_tools tests
 
 publish:
 	rm -rf build dist
-	@python setup.py sdist bdist_wheel
-	@twine upload dist/*
-	rm -rf build dist .egg moonreader_tools.egg-info
+	poetry run build && poetry run publish

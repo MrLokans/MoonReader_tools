@@ -1,7 +1,7 @@
 import zlib
 
 
-class FileReader(object):
+class FileReader:
     """
     A mixin class able to read simple and gzipped
     files

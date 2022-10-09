@@ -9,7 +9,7 @@ import pprint
 
 import dropbox
 
-from moonreader_tools.handlers import DropboxDownloader, FilesystemDownloader
+from moonreader_tools.finders import DropboxFinder, FilesystemFinder
 
 from .conf import DEFAULT_DROPBOX_PATH, log_format
 
@@ -42,35 +42,24 @@ def parse_args():
 
 def main():
     args = parse_args()
-    # Handle dropbox book data obtaining
     if args.dropbox_token:
         client = dropbox.Dropbox(args.dropbox_token)
-        handler = DropboxDownloader(client, workers=args.workers)
-        books = handler.get_books(book_count=args.book_count)
-        book_list = [book.to_dict() for book in books]
-        book_dict = {"books": book_list}
-        if args.output_file:
-            with open(args.output_file, "w") as result_f:
-                json.dump(book_dict, result_f, ensure_ascii=False)
-        pprint.pprint(book_dict)
-
-    # Handle local book data obtaining
-    if args.path:
-
+        finder = DropboxFinder(client, workers=args.workers)
+    elif args.path:
         if not os.path.exists(args.path):
             raise OSError("Specified path does not exist.")
         if not os.path.isdir(args.path):
             raise ValueError("Folder should be specified.")
-
-        handler = FilesystemDownloader()
-        books = handler.get_books(path=args.path)
-
-        book_dict = {"books": [book.to_dict() for book in books]}
-        if args.output_file:
-            with open(args.output_file, "w") as result_f:
-                json.dump(book_dict, result_f, ensure_ascii=False)
-        else:
-            pprint.pprint(book_dict, indent=2, width=120)
+        finder = FilesystemFinder(path=args.path)
+    else:
+        return
+    books = finder.get_books()
+    book_dict = {"books": [book.to_dict() for book in books]}
+    if args.output_file:
+        with open(args.output_file, "w") as result_f:
+            json.dump(book_dict, result_f, ensure_ascii=False)
+    else:
+        pprint.pprint(book_dict, indent=2, width=120)
 
 
 if __name__ == "__main__":

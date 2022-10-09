@@ -6,9 +6,9 @@ import io
 import os
 import re
 
-from moonreader_tools.accessors.file_reader import FileReader
+from moonreader_tools.parsers.file_reader import FileReader
 from moonreader_tools.conf import STAT_EXTENSION
-from moonreader_tools.stat import Statistics
+from moonreader_tools.datamodel.statistics import Statistics
 
 
 class StatsAccessor(FileReader):

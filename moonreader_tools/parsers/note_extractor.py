@@ -2,7 +2,7 @@ import datetime
 from typing import Tuple
 
 from moonreader_tools import utils
-from moonreader_tools.notes import Note, NoteStyle
+from moonreader_tools.datamodel.annotation import NoteStyle, Note
 
 DELETED_MARKER = "*DELETED*"
 
@@ -43,9 +43,10 @@ class NoteExtractorMixin(object):
 
     @classmethod
     def note_from_dictionary(cls, note_dict: dict) -> Note:
-        assert cls.REQUIRED_FIELDS < note_dict.keys(), (
-            "Some of the required keys for the note are missing: "
-            + str(cls.REQUIRED_FIELDS - note_dict.keys())
+        assert (
+            cls.REQUIRED_FIELDS < note_dict.keys()
+        ), "Some of the required keys for the note are missing: " + str(
+            cls.REQUIRED_FIELDS - note_dict.keys()
         )
 
         return Note(

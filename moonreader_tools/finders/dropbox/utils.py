@@ -1,6 +1,9 @@
 import io
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Tuple, Optional
+
+import dropbox
 
 # urllib3 produces noisy exceptions we disable
 logging.getLogger("urllib3.connectionpool").setLevel(logging.CRITICAL)
@@ -14,7 +17,7 @@ def extract_book_paths_from_dir_entries(entries):
     return [entry.path_lower for entry in entries]
 
 
-def dicts_from_pairs(client, pairs, workers=8):
+def dicts_from_pairs(client: dropbox.Dropbox, pairs, workers=8):
     """This method requires rewriting"""
     futures = set()
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -35,7 +38,7 @@ def dicts_from_pairs(client, pairs, workers=8):
             executor.shutdown()
 
 
-def get_book_dict(client, pair):
+def get_book_dict(client: dropbox.Dropbox, pair: Tuple[Optional[str], Optional[str]]):
     """This method requires rewriting"""
     book_files_dict = {}
     if not pair[0]:
